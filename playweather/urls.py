@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from home.views import HomePage
+from home.views import HomePage, StationPage
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', HomePage.as_view(), name='home'),
+    url(r'^station/(?P<station_id>[0-9]+)$', StationPage.as_view(), name='station'),
 ]
