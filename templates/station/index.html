@@ -1,0 +1,81 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <div class="animated fadeIn">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        Todas las estaciones
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-hover table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Estaci&oacute;n</th>
+                                        <th>Ubicacion</th>
+                                        <th>Pertenece a</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for station in stations %}
+                                        <tr>
+                                            <th scope="row">{{ station.id }}</th>
+                                            <td>{{ station.name }}</td>
+                                            <td>
+                                                {{ station.city|truncatechars:15 }}
+                                            </td>
+                                            <td>
+                                                {{ station.owner.username }}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'station_view' station_id=station.id %}">
+                                                    <btn class="btn-info btn">Ver M&aacute;s</btn>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="map" style="width:100%;height:400px"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/.col-->
+        </div>
+        <!--/.row-->
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function hola() {
+
+            var mapOptions = {
+                center: new google.maps.LatLng(19.131301, -70.747096),
+                zoom: 7
+            };
+
+            var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            {% for station in stations %}
+
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{ station.location_latitude }}, {{ station.location_longitude }}),
+                    title: "{{ station.name }}",
+                    map: map
+                });
+            {% endfor %}
+
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyARzXZNW2i1qOT9dZUTfIpqh08UI1IiS8Q&callback=hola"></script>
+{% endblock %}

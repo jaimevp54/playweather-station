@@ -6,7 +6,7 @@ from .models import Station, Sensor
 
 # Create your views here.
 
-class HomePage(View):
+class DashboardPage(View):
     def get(self, request):
         return render(request, "index.html", context={
             'stations': Station.objects.all(),
@@ -17,9 +17,15 @@ class HomePage(View):
         })
 
 
-class StationPage(View):
+class StationIndexPage(View):
+    def get(self,request, *args, **kwargs):
+        return render(request, "station/index.html", context={
+            'stations': Station.objects.all()
+        })
+
+class StationViewPage(View):
     def get(self,request, *args, **kwargs):
         station = kwargs["station_id"]
-        return render(request,"station.html", context={
+        return render(request, "station/view.html", context={
             'station': Station.objects.get(id=station)
         })
