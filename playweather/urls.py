@@ -17,10 +17,17 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from home.views import *
+from api.views import NewReading, ReadReading
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', DashboardPage.as_view(), name='dashboard'),
     url(r'^stations/', StationIndexPage.as_view(), name='station_index'),
     url(r'^station/view/(?P<station_id>[0-9]+)$', StationViewPage.as_view(), name='station_view'),
+
+    # API
+
+
+    url(r'^api/sensor_reading/new/$', NewReading.as_view(), name='new_reading'),
+    url(r'^api/sensor_reading/read/$', ReadReading.as_view(), name='read_reading'),
 ]
