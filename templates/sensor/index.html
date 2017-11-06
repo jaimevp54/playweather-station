@@ -8,41 +8,53 @@
                         Todas los sensores
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <ul class="nav nav-tabs" id="station-data" role="tablist">
-                                {% for type in sensor_types %}
-                                    <li class="nav-item">
-                                        <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
-                                           href="#sensor-{{ type }}"
-                                           role="tab">{{ type }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                        <ul class="nav nav-tabs" id="tabs" role="tablist">
+                            {% for sensor_type_code, sensor_type_name in sensor_types.items %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
+                                       href="#sensor-{{ sensor_type_code }}"
+                                       role="tab">{{ sensor_type_name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
 
-                            <!-- Tab panes -->
-                            <div class="tab-content">
-                                {% for sensor in sensors %}
-                                    <div class="tab-pane {% if forloop.first %}active{% endif %}"
-                                         id="sensor-{{ sensor.id }}"
-                                         role="tabpanel">
-                                        <div class="col-12">
-                                            <table id="readings-table" class="table table-hover table-responsive">
-                                                <thead>
-                                                <tr>
-                                                    <th>id</th>
-                                                    <th>sensor</th>
-                                                    <th>medida</th>
-                                                    <th>fecha</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr></tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            {% for sensor_type_code, sensor_type_name in sensor_types.items %}
+                                <div class="tab-pane {% if forloop.first %}active{% endif %}"
+                                     id="sensor-{{ sensor_type_code }}"
+                                     role="tabpanel">
+
+                                    <div class="col-12">
+                                        <table class="table table-hover table-responsive">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Sensor</th>
+                                                <th>Estaci&oacute;n</th>
+                                                <th></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                {% for sensor in sensors %}
+                                                    {% if sensor.type == sensor_type_code %}
+                                                        <th>{{ sensor.id }}</th>
+                                                        <td>{{ sensor.name }}</td>
+                                                        <td>{{ sensor.station.id }}</td>
+                                                        <td>
+                                                            <a href="{% url 'station_view' station_id=sensor.station.id %}">
+                                                                <btn class="btn-info btn">Ver M&aacute;s</btn>
+                                                            </a>
+                                                        </td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                {% endfor %}
-                            </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -52,4 +64,11 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+
+        $(document).ready(function () {
+            $tabs = $('#tabs');
+            $tabs.tab();
+        });
+    </script>
 {% endblock %}
