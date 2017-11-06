@@ -18,14 +18,32 @@ class DashboardPage(View):
 
 
 class StationIndexPage(View):
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return render(request, "station/index.html", context={
             'stations': Station.objects.all()
         })
 
+
+class SensorIndexPage(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "sensor/index.html", context={
+            'sensors': Sensor.objects.all(),
+            'sensor_types': {
+                'P': 'Pluvial',
+                'WS': 'Velocidad Viento',
+                'WD': 'Direccion Viento',
+                'UV': 'Luz Ultra Violeta)',
+                'CO2': "CO2"
+            }
+        })
+
+
 class StationViewPage(View):
-    def get(self,request, *args, **kwargs):
-        station = kwargs["station_id"]
+    def get(self, request, *args, **kwargs):
+        station = Station.objects.get(id=kwargs["station_id"])
+        sensors = Sensor.objects.filter(station=station)
+        print(station.sensor_set)
         return render(request, "station/view.html", context={
-            'station': Station.objects.get(id=station)
+            'station': station,
+            'sensors': sensors
         })

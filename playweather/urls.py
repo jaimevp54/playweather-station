@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^$', DashboardPage.as_view(), name='dashboard'),
     url(r'^stations/', StationIndexPage.as_view(), name='station_index'),
     url(r'^station/view/(?P<station_id>[0-9]+)$', StationViewPage.as_view(), name='station_view'),
+    url(r'^sensors/', SensorIndexPage.as_view(), name='sensor_index'),
 
     # API
 

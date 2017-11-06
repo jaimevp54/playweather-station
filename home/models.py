@@ -14,6 +14,10 @@ class Station(models.Model):
     is_active = models.BooleanField()
     date_registered = models.DateTimeField(auto_now=True)
 
+    @property
+    def sensor_count(self):
+        return len(self.sensor_set)
+
     def __str__(self):
         return f'{self.name} - Owner: {self.owner.username}'
 
@@ -21,6 +25,13 @@ class Station(models.Model):
 class Sensor(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
+    type = models.CharField(max_length=255, choices=[
+        ('P', 'Pluvial'),
+        ('WS', 'Velocidad Viento'),
+        ('WD', 'Direccion Viento'),
+        ('UV', 'Luz Ultra Violeta)'),
+        ('CO2', "CO2")
+    ], default='Pluvial')
     station = models.ForeignKey(Station)
     is_active = models.BooleanField()
     date_registered = models.DateTimeField(auto_now=True)
