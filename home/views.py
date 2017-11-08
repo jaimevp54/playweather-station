@@ -12,6 +12,7 @@ class DashboardPage(View):
             'stations': Station.objects.all(),
             'recent_stations': Station.objects.order_by('date_registered').reverse()[:5],
             'sensors': Sensor.objects.all(),
+            'recent_sensors': Sensor.objects.order_by('date_registered').reverse()[:5],
             'active_stations_count': Station.objects.filter(is_active=True).count(),
             'active_sensors_count': Sensor.objects.filter(is_active=True).count()
         })

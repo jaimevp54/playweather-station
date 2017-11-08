@@ -1,4 +1,6 @@
 {% extends 'base/base.html' %}
+{% load humanize %}
+
 {% block content %}
 
     <div class="animated fadeIn">
@@ -50,39 +52,71 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        Estaciones Registradas recientemente
+                        Recientemente Registrados
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th></th>
-                                <th>Estaci&oacute;n</th>
-                                <th>Ubicacion</th>
-                                <th>Pertenece a</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for station in recent_stations %}
-                                <tr>
-                                    <th scope="row">{{ station.date_registered }}</th>
-                                    <td>{{ station.name }}</td>
-                                    <td>
-                                        {{ station.city }}
-                                    </td>
-                                    <td>
-                                        {{ station.owner.username }}
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'station_view' station_id=station.id %}">
-                                            <btn class="btn-info btn">Ver M&aacute;s</btn>
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="row">
+                            <div class="col-6 text-center"><h2>Estaci&oacute;nes</h2></div>
+                            <div class="col-6 text-center"><h2>Sensores</h2></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Estaci&oacute;n</th>
+                                        <th>Ubicacion</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for station in recent_stations %}
+                                        <tr>
+                                            <th scope="row">{{ station.date_registered|naturaltime}}</th>
+                                            <td>{{ station.name }}</td>
+                                            <td>
+                                                {{ station.city|truncatechars:15 }}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'station_view' station_id=station.id %}">
+                                                    <btn class="btn-info btn">Ver M&aacute;s</btn>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Sensor</th>
+                                        <th>Estaci&oacute;n</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for sensor in recent_sensors %}
+                                        <tr>
+                                            <th scope="row">{{ sensor.date_registered|naturaltime}}</th>
+                                            <td>{{ sensor.name }}</td>
+                                            <td>
+                                                {{ sensor.station.name|truncatechars:15 }}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'station_view' station_id=sensor.station.id %}">
+                                                    <btn class="btn-info btn">Ver M&aacute;s</btn>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,9 +154,9 @@
                     <!--/.col-->
                 </div>
                 <!--/.row-->
-{#                <div class="chart-wrapper" style="height:300px;margin-top:40px;">#}
-{#                    <canvas id="main-chart" class="chart" height="300"></canvas>#}
-{#                </div>#}
+                {#                <div class="chart-wrapper" style="height:300px;margin-top:40px;">#}
+                {#                    <canvas id="main-chart" class="chart" height="300"></canvas>#}
+                {#                </div>#}
             </div>
             <div class="card-footer">
                 <ul>
