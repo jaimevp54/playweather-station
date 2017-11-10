@@ -4,6 +4,12 @@ import time
 import atexit
 
 import pigpio
+import time
+
+import pigpio
+
+import DHT22
+
 
 class sensor:
    """
@@ -240,15 +246,8 @@ class sensor:
          self.cb.cancel()
          self.cb = None
 
-if __name__ == "__main__":
 
-   import time
-
-   import pigpio
-
-   import DHT22
-
-   
+def run(data_collector):
    # Intervalos de 3 segundos permiten que no se caiga o se quede en un loop infinito el DHT22
    INTERVAL=3
 
@@ -269,12 +268,13 @@ if __name__ == "__main__":
       time.sleep(0.2)
 
       print("Lectura #{}: Humedad: {}% Temperatura: {}*C ".format(r, s.humidity(), s.temperature()))
+      data_collector['humidity'+time.localtime()]= s.humidity()
+      data_collector['temperature'+time.localtime()]= s.temperature()
 
       next_reading += INTERVAL
 
-      time.sleep(next_reading-time.time()) 
+      time.sleep(next_reading-time.time())
 
    s.cancel()
-
    pi.stop()#!/usr/bin/env python
 

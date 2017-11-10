@@ -41,7 +41,7 @@
                                                     {% if sensor.type == sensor_type_code %}
                                                         <th>{{ sensor.id }}</th>
                                                         <td>{{ sensor.name }}</td>
-                                                        <td>{{ sensor.station.id }}</td>
+                                                        <td>{{ sensor.station.name}}</td>
                                                         <td>
                                                             <a href="{% url 'station_view' station_id=sensor.station.id %}">
                                                                 <btn class="btn-info btn">Ver M&aacute;s</btn>
