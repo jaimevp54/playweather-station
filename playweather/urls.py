@@ -17,7 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from home.views import *
-from api.views import NewReading, ReadReading
+from api.views import NewReading, ReadReading, NewReadingsBundle
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -27,8 +27,8 @@ urlpatterns = [
     url(r'^sensors/', SensorIndexPage.as_view(), name='sensor_index'),
 
     # API
-
-
     url(r'^api/sensor_reading/new/$', NewReading.as_view(), name='new_reading'),
     url(r'^api/sensor_reading/read/$', ReadReading.as_view(), name='read_reading'),
+
+    url(r'^api/sensor_readings_bundle/new/$', NewReadingsBundle.as_view(), name='new_reading_bundle'),
 ]
