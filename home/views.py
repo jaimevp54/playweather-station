@@ -12,20 +12,39 @@ class DashboardPage(View):
             'stations': Station.objects.all(),
             'recent_stations': Station.objects.order_by('date_registered').reverse()[:5],
             'sensors': Sensor.objects.all(),
+            'recent_sensors': Sensor.objects.order_by('date_registered').reverse()[:5],
             'active_stations_count': Station.objects.filter(is_active=True).count(),
             'active_sensors_count': Sensor.objects.filter(is_active=True).count()
         })
 
 
 class StationIndexPage(View):
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return render(request, "station/index.html", context={
             'stations': Station.objects.all()
         })
 
+
+class SensorIndexPage(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "sensor/index.html", context={
+            'sensors': Sensor.objects.all(),
+            'sensor_types': {
+                'P': 'Pluvial',
+                'WS': 'Velocidad Viento',
+                'WD': 'Direccion Viento',
+                'UV': 'Luz Ultra Violeta)',
+                'CO2': "CO2"
+            }
+        })
+
+
 class StationViewPage(View):
-    def get(self,request, *args, **kwargs):
-        station = kwargs["station_id"]
+    def get(self, request, *args, **kwargs):
+        station = Station.objects.get(id=kwargs["station_id"])
+        sensors = Sensor.objects.filter(station=station)
+        print(station.sensor_set)
         return render(request, "station/view.html", context={
-            'station': Station.objects.get(id=station)
+            'station': station,
+            'sensors': sensors
         })
