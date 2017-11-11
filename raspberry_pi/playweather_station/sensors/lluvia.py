@@ -38,7 +38,7 @@ class Rain(SensorModule):
             timeString = time.strftime("%Y %m %d %H:%M:%S", localtime)
             linea = timeString + " se han registrado %f milimetros de lluvia" % (rain)
             print(linea)
-            data_collector['lluvia' + time.localtime()] = rain
+            data_collector['lluvia' + str(time.localtime())] = rain
             # requests.get('http://192.168.0.6:8000/api/sensor_reading/new?sensor_name=pluviometro&data={}'.format(linea))
             time.sleep(5)  # Tiempo entre lecturas
 

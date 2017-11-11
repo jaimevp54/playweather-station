@@ -142,3 +142,5 @@ fabric.properties
 home/__pycache__/
 home/migrations/__pycache__/
 playweather/__pycache__/
+
+sensors/

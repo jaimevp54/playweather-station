@@ -8,8 +8,10 @@ import requests
 from playweather_station.core import SensorModule
 
 
+speed = 0
 class Wind(SensorModule):
     def run(self, data_collector):
+	print('collector ->'+str(data_collector))
         # Cada vez que cierre el contacto equivale a 2.4 Km/h
         factor_velocidad = 2.4
         vane_grados = 0
@@ -22,7 +24,6 @@ class Wind(SensorModule):
         GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
         # Variable para conteo de velocidad
-        speed = 0
 
         # Funcion de interrupcion para dectectar cada vez que se cierre el contacto
         def cb(channel):
@@ -58,6 +59,7 @@ class Wind(SensorModule):
         # Variable para el tiempo
         localTime = 0
 
+	global speed
         while True:
 
             localTime = time.localtime()
@@ -106,7 +108,7 @@ class Wind(SensorModule):
             # requests.get('http://192.168.0.5:8000/api/sensor_reading/new?sensor_name=dir_viento&data={}'.format(vane_grados))
             print("--------------------------------------------")
             print("La velocidad es de: %.2f Km/h y de %.2f MPH") % (speed, speed / 1.6)
-            data_collector['speed' + time.localtime()] = speed
+            data_collector[self.name] += [speed]
             speed = 0
 
             # Tiempo de espera antes de la siguiente lectura
