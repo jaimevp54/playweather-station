@@ -11,7 +11,7 @@ import time
 import pigpio
 
 
-# import DHT22
+import DHT22
 
 
 class sensor:

@@ -7,9 +7,8 @@ pw = PlayWeatherStation()
 # Register module classes in here
 # --> pw.register(module.Class)
 
-pw.register(co.CO)
-pw.register(lluvia.Rain)
-pw.register(DHT22.DHY22)
-pw.register(viento.Wind)
+#pw.register(co.CO,'co')
+#pw.register(lluvia.Rain,'lluvia')
+pw.register(viento.Wind,'viento')
 
 pw.initialize()

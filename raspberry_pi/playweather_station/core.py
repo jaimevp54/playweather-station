@@ -1,5 +1,8 @@
 from threading import Thread
 import time
+from pprint import pprint
+
+import json
 
 
 class SensorModule:
@@ -12,27 +15,32 @@ class SensorModule:
 
 class PlayWeatherStation:
     def __init__(self):
-        self.registered_sensors = []
+        self.registered_sensors = {}
+        self.data_collector = {}
+        self.threads = {}
 
-    def register(self, sensor):
-        self.registered_sensors.append(sensor)
+    def register(self, sensor, name):
+        sensor.name = name
+        self.registered_sensors[name] = sensor
 
     def initialize(self):
         print("Initializing sensors... ")
-        data_collector = {}
-        threads = {}
         for sensor in self.registered_sensors:
-            threads[sensor.__name__] = Thread(target=sensor.run, args=(data_collector,))
-            threads[sensor.__name__].start()
+            self.data_collector[sensor] = []
+
+        print(self.data_collector)
+
+        self.threads = {}
+
+        for sensor in self.registered_sensors:
+            self.threads[sensor] = Thread(target=self.registered_sensors[sensor]().run, args=(self.data_collector,))
+            self.threads[sensor].start()
 
         while True:
             time.sleep(5)
-            print("\n\n\n*********")
-            print("acumulado")
-            for l in data_collector:
-                print(l, data_collector[l])
-            data_collector.clear()
+            pprint(json.dumps(self.data_collector))
+            tmp_collector = {}
+            for sensor in self.registered_sensors:
+                tmp_collector[sensor] = []
+            self.data_collector = dict(tmp_collector)
             print("*********\n\n\n")
-            for t in threads:
-                threads[t].terminate()
-            break
