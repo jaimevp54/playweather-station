@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from datetime import datetime
 from django.core.paginator import Paginator
 from django.core import serializers
 
@@ -26,24 +27,35 @@ class NewReading(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class NewReadingsBundle(View):
     def get(self, request):
-        data = json.loads('{"CO2":234,"dir_viento":192}')
-        for sensor in data:
-            SensorReading.objects.create(
-                sensor=Sensor.objects.get(name=sensor),
-                data=data[sensor]
-            )
+        data = json.loads(
+            '{"pluvial": [{"date": "2017-11-13T20:49:15Z", "value": 0}], "viento_velocidad": [{"date": '
+            '"2017-11-13T20:49:16Z", "value": 0}], "co": [{"date": "2017-11-13T20:49:13Z", '
+            '"value": 0.004963269307602358}, {"date": "2017-11-13T20:49:16Z", "value": 0.004963269307602358}], '
+            '"viento_direccion": [{"date": "2017-11-13T20:49:16Z", "value": 292.5}]}'
+        )
+
+        for sensor, readings in data.items():
+            for reading in readings:
+                SensorReading.objects.create(
+                    sensor=Sensor.objects.get(name=sensor),
+                    data=float(reading['value']),
+                    date=datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ')
+                )
+
         return HttpResponse("Data received succesfully ->" + json.dumps(data))
 
     def post(self, request):
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)
-        for sensor in data:
-            SensorReading.objects.create(
-                sensor=Sensor.objects.get(name=sensor),
-                data=data[sensor]
-            )
+        for sensor, readings in data.items():
+            for reading in readings:
+                SensorReading.objects.create(
+                    sensor=Sensor.objects.get(name=sensor),
+                    data=float(reading['value']),
+                    date=datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ')
+                )
 
-        return HttpResponse("Data received succesfully" + json.dumps(data))
+        return HttpResponse("Data received succesfully ->" + json.dumps(data))
 
 
 class ReadReading(View):

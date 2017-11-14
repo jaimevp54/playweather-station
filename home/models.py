@@ -30,6 +30,7 @@ class Sensor(models.Model):
         ('WS', 'Velocidad Viento'),
         ('WD', 'Direccion Viento'),
         ('UV', 'Luz Ultra Violeta)'),
+        ('CO', 'CO'),
         ('CO2', "CO2")
     ], default='Pluvial')
     station = models.ForeignKey(Station)
