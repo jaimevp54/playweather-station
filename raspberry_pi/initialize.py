@@ -7,8 +7,15 @@ pw = PlayWeatherStation()
 # Register module classes in here
 # --> pw.register(module.Class)
 
-#pw.register(co.CO,'co')
-#pw.register(lluvia.Rain,'lluvia')
-pw.register(viento.Wind,'viento')
+pw.register(co.CO, 'co')
+pw.register(lluvia.Rain, 'pluvial')
+# pw.register(DHT22.DHY22, 'DHT22')
+pw.register(viento.Wind, 'viento')
 
-pw.initialize()
+try:
+    pw.initialize()
+except Exception as e:
+    print('An error has occurred: ', e)
+    pw.stop()
+finally:
+    pw.stop()

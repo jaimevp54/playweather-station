@@ -7,7 +7,7 @@ from playweather_station.core import SensorModule
 
 
 class Rain(SensorModule):
-    def run(self, data_collector):
+    def run(self):
         # Cada ve que se vacia, equivale a 0.2794 mm de lluvia
         CALIBRATION = 0.2794
 
@@ -33,14 +33,13 @@ class Rain(SensorModule):
         GPIO.add_event_detect(PIN, GPIO.RISING, callback=cb, bouncetime=100)
 
         # Mostrar los resultados del log
-        while True:
+        for _ in range(5):
             localtime = time.localtime()
             timeString = time.strftime("%Y %m %d %H:%M:%S", localtime)
             linea = timeString + " se han registrado %f milimetros de lluvia" % (rain)
-            print(linea)
-            data_collector['lluvia' + str(time.localtime())] = rain
+            self.collect(rain)
             # requests.get('http://192.168.0.6:8000/api/sensor_reading/new?sensor_name=pluviometro&data={}'.format(linea))
-            time.sleep(5)  # Tiempo entre lecturas
+            time.sleep(4)  # Tiempo entre lecturas
 
         # Cerrar el archivo y limpiar el GPIO
         GPIO.cleanup()

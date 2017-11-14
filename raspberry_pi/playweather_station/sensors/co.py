@@ -1,19 +1,18 @@
-
 import sys, time
 
-from playweather_station.core import SensorModule 
+from playweather_station.core import SensorModule
 
-from playweather_station.core  import *
+from playweather_station.sensors.helpers.mq import MQ
+
+
 class CO(SensorModule):
-    def run(self, data_collector):
+    def run(self):
         try:
-            print("Presione CTRL+C para abortar.")
             mq = MQ()
-            while True:
+            for _ in range(10):
                 perc = mq.MQPercentage()
                 print("CO: %g ppm" % (perc["CO"]))
-                data_collector['co - ' + str(time.localtime())] = perc["CO"]
-                time.sleep(1)
-
-        except:
-            print("\nAbortado")
+                self.collect(perc["CO"])
+                time.sleep(3)
+        except Exception as e:
+            print("\nAbortado: ", e.message)

@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 
-import time
 import atexit
 
 from playweather_station.core import SensorModule
 
-import pigpio
 import time
-
-import pigpio
-
+from playweather_station.sensors.helpers import pigpio
 
 import DHT22
 
@@ -250,7 +246,7 @@ class sensor:
 
 
 class DHY22(SensorModule):
-    def run(self, data_collector):
+    def run(self):
         # Intervalos de 3 segundos permiten que no se caiga o se quede en un loop infinito el DHT22
         INTERVAL = 3
 
@@ -269,9 +265,9 @@ class DHY22(SensorModule):
 
             time.sleep(0.2)
 
-            print("Lectura #{}: Humedad: {}% Temperatura: {}*C ".format(r, s.humidity(), s.temperature()))
-            data_collector['humidity' + time.localtime()] = s.humidity()
-            data_collector['temperature' + time.localtime()] = s.temperature()
+            # print("Lectura #{}: Humedad: {}% Temperatura: {}*C ".format(r, s.humidity(), s.temperature()))
+            self.collect(s.humidity(), sub_name='humedad')
+            self.collect(s.temperature(), sub_name='temperatura')
 
             next_reading += INTERVAL
 
