@@ -106,7 +106,9 @@ class Wind(SensorModule):
             # print "--------------------------------------------"
             # print("Valor de voltaje: {}V | Valor de direccion: {} grados".format(vane_volts,vane_grados))
             # requests.get('http://192.168.0.5:8000/api/sensor_reading/new?sensor_name=dir_viento&data={}'.format(vane_grados))
-            self.collect(speed, sub_name='wind_speed')
+
+            self.collect(vane_grados, sub_name='direccion')
+            self.collect(speed, sub_name='velocidad')
 
             speed = 0
 

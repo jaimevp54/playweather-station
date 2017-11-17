@@ -2,12 +2,11 @@
 
 import atexit
 
-from playweather_station.core import SensorModule
+from playweather_station.core import *
 
 import time
 from playweather_station.sensors.helpers import pigpio
 
-import DHT22
 
 
 class sensor:
@@ -245,20 +244,21 @@ class sensor:
             self.cb = None
 
 
-class DHY22(SensorModule):
+class DHT22(SensorModule):
+
     def run(self):
         # Intervalos de 3 segundos permiten que no se caiga o se quede en un loop infinito el DHT22
         INTERVAL = 3
 
         pi = pigpio.pi()
 
-        s = DHT22.sensor(pi, 22)
+        s = sensor(pi, 22)
 
         r = 0
 
         next_reading = time.time()
 
-        while True:
+        while self.running:
             r += 1
 
             s.trigger()

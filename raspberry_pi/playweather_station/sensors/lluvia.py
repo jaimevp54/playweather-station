@@ -33,7 +33,8 @@ class Rain(SensorModule):
         GPIO.add_event_detect(PIN, GPIO.RISING, callback=cb, bouncetime=100)
 
         # Mostrar los resultados del log
-        for _ in range(5):
+        while self.running:
+
             localtime = time.localtime()
             timeString = time.strftime("%Y %m %d %H:%M:%S", localtime)
             linea = timeString + " se han registrado %f milimetros de lluvia" % (rain)

@@ -9,7 +9,8 @@ pw = PlayWeatherStation()
 
 pw.register(co.CO, 'co')
 pw.register(lluvia.Rain, 'pluvial')
-# pw.register(DHT22.DHY22, 'DHT22')
+pw.register(DHT22.DHT22, 'DHT22')
+
 pw.register(viento.Wind, 'viento')
 
 try:
