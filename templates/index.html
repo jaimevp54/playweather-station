@@ -102,7 +102,7 @@
                                     {% for sensor in recent_sensors %}
                                         <tr>
                                             <th scope="row">{{ sensor.date_registered|naturaltime}}</th>
-                                            <td>{{ sensor.name }}</td>
+                                            <td>{{ sensor.id }}</td>
                                             <td>
                                                 {{ sensor.station.name|truncatechars:15 }}
                                             </td>

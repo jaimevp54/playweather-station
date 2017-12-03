@@ -8,7 +8,6 @@
                     <div class="col-6">
                         <h1>{{ station.name }}</h1>
                         <h4>Registrada por: {{ station.owner }}</h4>
-                        <p><b>En la ciudad:</b> {{ station.city }} </p>
                         <p><b>En la fecha:</b> {{ station.date_registered }} </p>
                         <h4>Ubicacion</h4>
                         <ul>
@@ -27,8 +26,8 @@
                     {% for sensor in sensors %}
                         <li class="nav-item">
                             <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
-                               href="#sensor-{{ sensor.sensor_id }}"
-                               role="tab">{{ sensor.sensor_id }}</a>
+                               href="#sensor-{{ sensor.id }}"
+                               role="tab">{{ sensor.id }} ({{ sensor.type }})</a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -71,7 +70,7 @@
 {% endblock %}
 
 {% block extra_js %}
-    {#    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>#}
+{#        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>#}
     <script>
 
         function displayMap() {
@@ -99,7 +98,6 @@
         function updateChart(data_values) {
             var elements = 5;
             data_values = data_values.reverse();
-            console.log(data_values);
             var data = {
                 labels: data_values.map(function (x) {
                     return x.id;
@@ -173,6 +171,7 @@
         // Enable tabs
         $(document).ready(function () {
             $station_data = $('#station-data');
+            console.log($station_data);
             $station_data.tab();
 
             updateTab();
