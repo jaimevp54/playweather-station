@@ -55,32 +55,38 @@ class NewReadingsBundle(View):
             station.location_altitude = data["location"]["altitude"]
             station.location_longitude = data["location"]["longitude"]
             station.location_latitude = data["location"]["latitude"]
+
+            station.last_activity_date = datetime.now()
             station.save()
         else:
             return HttpResponse(f"Station {data['station_id']} is not registered on Playweather Web.\n  ignored.")
 
         received = []
         ignored = []
-        for sensor, readings in data['readings'].items():
-            if Sensor.objects.filter(id=sensor).exists():  # TODO check if this sensor belongs to the right station
-                received.append(sensor)
+        for sensor_id, readings in data['readings'].items():
+            if Sensor.objects.filter(id=sensor_id).exists():  # TODO check if this sensor belongs to the right station
+                sensor = Sensor.objects.get(id=sensor_id)
                 for reading in readings:
                     SensorReading.objects.create(
-                        sensor=Sensor.objects.get(id=sensor),
+                        sensor=Sensor.objects.get(id=sensor_id),
                         data=float(reading['value']),
                         date=datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ')
                     )
+
+                received.append(sensor_id)
+                sensor.last_activity_date = datetime.now()
+                sensor.save()
             else:
-                ignored.append(sensor)
+                ignored.append(sensor_id)
 
         response = "\n\n**************************************************************************\n"
         response += "The following sensors are not registered, therefore have been ignorored: \n"
-        for sensor in ignored:
+        for sensor_id in ignored:
             response += f" - {sensor}\n"
         response += "Please register ignored sensors on Playweather Web Admin site (http://playweather.tk/admin) \n\n"
 
         response += "Data received succesfully for sensors:\n"
-        for sensor in received:
+        for sensor_id in received:
             response += f" - {sensor}\n"
 
         return HttpResponse(response)

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import View
 
 from .models import Station, Sensor
+from datetime import datetime, timedelta
 
 
 # Create your views here.
@@ -13,8 +14,10 @@ class DashboardPage(View):
             'recent_stations': Station.objects.order_by('date_registered').reverse()[:5],
             'sensors': Sensor.objects.all(),
             'recent_sensors': Sensor.objects.order_by('date_registered').reverse()[:5],
-            'active_stations_count': Station.objects.filter(is_active=True).count(),
-            'active_sensors_count': Sensor.objects.filter(is_active=True).count()
+            'active_stations_count': Station.objects.filter(
+                last_activity_date__gte=datetime.now() - timedelta(seconds=Station.TIME_TO_WAIT)).count(),
+            'active_sensors_count': Sensor.objects.filter(
+                last_activity_date__gte=datetime.now() - timedelta(seconds=Sensor.TIME_TO_WAIT)).count()
         })
 
 

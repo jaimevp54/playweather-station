@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 
 
 # Create your models here.
 
 class Station(models.Model):
+    TIME_TO_WAIT = 60  # Time to wait for activity before declaring station as inactive IN SECONDS
+
     owner = models.ForeignKey(User)
     id = models.CharField(primary_key=True, max_length=255)  # TODO must be unique
     name = models.CharField(max_length=255, unique=True)  # TODO must be unique
@@ -12,7 +15,7 @@ class Station(models.Model):
     location_longitude = models.FloatField(null=True, editable=False)  # TODO can be null
     location_latitude = models.FloatField(null=True, editable=False)  # TODO can be null
     location_altitude = models.FloatField(null=True, editable=False)  # TODO can be null
-    is_active = models.BooleanField(editable=False, default=False)
+    last_activity_date = models.DateTimeField(null=True)
     date_registered = models.DateTimeField(auto_now=True)
 
     @property
@@ -24,6 +27,8 @@ class Station(models.Model):
 
 
 class Sensor(models.Model):
+    TIME_TO_WAIT = 60  # Time to wait for activity before declaring sensor as inactive IN SECONDS
+
     id = models.CharField(primary_key=True, max_length=255)
     description = models.TextField(blank=True)  # TODO can be null
     type = models.CharField(max_length=255, choices=[
@@ -38,8 +43,8 @@ class Sensor(models.Model):
 
     ], default='Pluvial')
     station = models.ForeignKey(Station)
-    is_active = models.BooleanField(editable=False, default=False)
     date_registered = models.DateTimeField(auto_now=True)
+    last_activity_date = models.DateTimeField(null=True)
 
     def __str__(self):
         return f'{self.id} - Installed at: {self.station.name}'
