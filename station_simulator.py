@@ -5,6 +5,8 @@ from requests import ConnectionError
 import time
 
 import json
+import sqlite3
+import os
 
 
 def send_data(data, host="localhost", port="8000", path="api/sensor_readings_bundle/new/"):
@@ -21,6 +23,42 @@ def send_data(data, host="localhost", port="8000", path="api/sensor_readings_bun
         print("error:" + str(e) + "\n\n")
 
 
+db_filename = "pw.sqlite3"
+schema_filename = "pw_schema.sql"
+
+
+def init_db():
+    if not os.path.exists(db_filename):
+        with sqlite3.connect(db_filename) as conn:
+            print('Creating schema')
+            with open(schema_filename, 'rt') as f:
+                schema = f.read()
+            conn.executescript(schema)
+            print('Schema created\n\n')
+    else:
+        print("Database already created")
+
+
+def persist_data(data):
+    if os.path.exists(db_filename):
+        print("Persisting data")
+        with sqlite3.connect(db_filename) as conn:
+            # c = conn.cursor()
+            for sensor, readings in data['readings'].items():
+                for reading in readings:
+                    conn.execute(
+                        """
+                        INSERT INTO readings (sensor, value, reading_date)
+                        VALUES (?,?,?) 
+                        """, (sensor, reading['value'], datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                    )
+            conn.commit()
+        print("Done: Data persisted")
+    else:
+        print("Database still not created. Run init_db() before being able to persiste data")
+
+
+init_db()
 while True:
     time.sleep(5)
     pw1 = {
@@ -35,7 +73,7 @@ while True:
                 {"value": random.randrange(100, 120), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
             ],
             "pw1_s2": [
-                {"value": random.randrange(1000, 1200), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
+                {"value": random.randrange(100, 1200), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
             ],
             "pw1_s3": [
                 {"value": random.randrange(10, 19), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
@@ -46,6 +84,7 @@ while True:
         }
     }
 
+    persist_data(pw1)
     send_data(pw1)
 
     pw2 = {
@@ -60,7 +99,7 @@ while True:
                 {"value": random.randrange(200, 220), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
             ],
             "pw2_s2": [
-                {"value": random.randrange(800, 1000), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
+                {"value": random.randrange(80, 1000), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
             ],
             "pw2_s3": [
                 {"value": random.randrange(53, 62), "date": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')},
