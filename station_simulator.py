@@ -2,6 +2,7 @@ import requests
 import random
 from datetime import datetime
 from requests import ConnectionError
+import time
 
 import json
 
@@ -25,8 +26,8 @@ while True:
     pw1 = {
         "station_id": "pw1",
         "location": {
-            "longitude": 19.446264,
-            "latitude": -70.683918,
+            "latitude": 19.446264,
+            "longitude": -70.683918,
             "altitude": 201.45,
         },
         "readings": {
@@ -50,8 +51,8 @@ while True:
     pw2 = {
         "station_id": "pw2",
         "location": {
-            "longitude": 19.446359,
-            "latitude": -70.683111,
+            "latitude": 19.446359,
+            "longitud": -70.683111,
             "altitude": 102.45,
         },
         "readings": {
@@ -77,8 +78,8 @@ while True:
     pw3 = {
         "station_id": "pw3",
         "location": {
-            "longitude": 19.446415,
-            "latitude": -70.684023,
+            "latitude": 19.446415,
+            "longitude": -70.684023,
             "altitude": 201.87,
         },
         "readings": {
