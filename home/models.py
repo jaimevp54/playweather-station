@@ -28,19 +28,19 @@ class Station(models.Model):
 
 class Sensor(models.Model):
     TIME_TO_WAIT = 60  # Time to wait for activity before declaring sensor as inactive IN SECONDS
-
-    id = models.CharField(primary_key=True, max_length=255)
-    description = models.TextField(blank=True)  # TODO can be null
-    type = models.CharField(max_length=255, choices=[
+    TYPE_CHOICES = [
         ('P', 'Pluvial'),
         ('WS', 'Velocidad Viento'),
         ('WD', 'Direccion Viento'),
-        ('UV', 'UV'),
+        ('UV', 'Ultra Violeta'),
         ('TEMP', 'Temperatura'),
         ('HUM', 'Humedad'),
         ('CO', 'CO'),
         ('CO2', 'CO2')
-    ], default='Pluvial')
+    ]
+    id = models.CharField(primary_key=True, max_length=255)
+    description = models.TextField(blank=True)  # TODO can be null
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default='Pluvial')
 
     station = models.ForeignKey(Station)
     date_registered = models.DateTimeField(auto_now=True)
