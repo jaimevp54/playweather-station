@@ -15,7 +15,6 @@
                                     <tr>
                                         <th></th>
                                         <th>Estaci&oacute;n</th>
-                                        <th>Ubicacion</th>
                                         <th>Pertenece a</th>
                                         <th></th>
                                     </tr>
@@ -25,9 +24,6 @@
                                         <tr>
                                             <th scope="row">{{ station.id }}</th>
                                             <td>{{ station.name }}</td>
-                                            <td>
-                                                {{ station.city|truncatechars:15 }}
-                                            </td>
                                             <td>
                                                 {{ station.owner.username }}
                                             </td>

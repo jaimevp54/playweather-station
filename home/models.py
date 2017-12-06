@@ -12,10 +12,10 @@ class Station(models.Model):
     id = models.CharField(primary_key=True, max_length=255)  # TODO must be unique
     name = models.CharField(max_length=255, unique=True)  # TODO must be unique
     # city = models.ForeignKey("cities_light.City", null=True, on_delete=models.SET_NULL)
-    location_longitude = models.FloatField(null=True, editable=False)  # TODO can be null
-    location_latitude = models.FloatField(null=True, editable=False)  # TODO can be null
-    location_altitude = models.FloatField(null=True, editable=False)  # TODO can be null
-    last_activity_date = models.DateTimeField(null=True)
+    location_longitude = models.FloatField(null=True, editable=False)
+    location_latitude = models.FloatField(null=True, editable=False)
+    location_altitude = models.FloatField(null=True, editable=False)
+    last_activity_date = models.DateTimeField(null=True, default=datetime.min)
     date_registered = models.DateTimeField(auto_now=True)
 
     @property
@@ -34,17 +34,30 @@ class Sensor(models.Model):
     type = models.CharField(max_length=255, choices=[
         ('P', 'Pluvial'),
         ('WS', 'Velocidad Viento'),
-        ('WD', 'Dirsensor_ideccion Viento'),
+        ('WD', 'Direccion Viento'),
         ('UV', 'UV'),
         ('TEMP', 'Temperatura'),
         ('HUM', 'Humedad'),
         ('CO', 'CO'),
         ('CO2', 'CO2')
-
     ], default='Pluvial')
+
     station = models.ForeignKey(Station)
     date_registered = models.DateTimeField(auto_now=True)
-    last_activity_date = models.DateTimeField(null=True)
+    last_activity_date = models.DateTimeField(null=True, default=datetime.min)
+
+    @property
+    def measure_unit(self):
+        return {
+            'P': 'Pluvial',
+            'WS': 'Velocidad Viento',
+            'WD': 'Direccion Viento',
+            'UV': 'UV',
+            'TEMP': 'Temperatura',
+            'HUM': 'Humedad',
+            'CO': 'CO',
+            'CO2': 'CO2'
+        }[self.type]
 
     def __str__(self):
         return f'{self.id} - Installed at: {self.station.name}'
