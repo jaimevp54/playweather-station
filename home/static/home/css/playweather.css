@@ -3,3 +3,12 @@
     -moz-border-radius: 5%;
     border-radius: 5%;
 }
+.legend{
+    font-size: 11px;
+    color: gray;
+    margin: 15px 0 0 0;
+    padding: 5px 5px 0 5px;
+}
+.legends label{
+    margin: 0 10px;
+}

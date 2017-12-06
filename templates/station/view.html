@@ -3,7 +3,6 @@
     <div class="animated fadeIn">
         <div class="card">
             <div class="card-body">
-
                 <div class="row">
                     <div class="col-6">
                         <h1>{{ station.name }}</h1>
@@ -20,14 +19,20 @@
                         <div id="map" style="width:100%;height:400px"></div>
                     </div>
                 </div>
-
+                <div class="row legend">
+                    <div class="col-12">
+                        {% for abbr, name in sensor_types.items %}
+                            <label class="col-md-3"><span class="badge badge-primary">{{ abbr }}</span> {{ name }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" id="station-data" role="tablist">
                     {% for sensor in sensors %}
                         <li class="nav-item">
                             <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
                                href="#sensor-{{ sensor.id }}"
-                               role="tab">{{ sensor.id }} ({{ sensor.type }})</a>
+                               role="tab">{{ sensor.id }} <span class="badge badge-primary">{{ sensor.type }}</span></a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -70,7 +75,7 @@
 {% endblock %}
 
 {% block extra_js %}
-{#        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>#}
+    {#        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>#}
     <script>
 
         function displayMap() {
@@ -91,7 +96,7 @@
         function updateTable(data_values) {
             $readings_table = $('#readings-table>tbody').empty();
             data_values.slice(0, 5).forEach(function (data) {
-                $readings_table.append('<tr> <th>' + data['id'] + '</th> <td>' + data['sensor_id'] + '</td><td>' + data['data'] + '</td><td>' + data['date'] + '</td></tr>')
+                $readings_table.append('<tr> <th>' + data['id'] + '</th> <td>' + data['sensor_id'] + '</td><td>' + data['data'] + '</td><td>' + data['date'].replace("T", " ").slice(0, 19) + '</td></tr>')
             });
         }
 
@@ -100,7 +105,7 @@
             data_values = data_values.reverse();
             var data = {
                 labels: data_values.map(function (x) {
-                    return x.id;
+                    return "~" + (x.id).toString().slice(2);
                 }),
                 datasets: [
                     {

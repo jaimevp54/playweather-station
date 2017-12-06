@@ -32,13 +32,7 @@ class SensorIndexPage(View):
     def get(self, request, *args, **kwargs):
         return render(request, "sensor/index.html", context={
             'sensors': Sensor.objects.all(),
-            'sensor_types': {
-                'P': 'Pluvial',
-                'WS': 'Velocidad Viento',
-                'WD': 'Direccion Viento',
-                'UV': 'Luz Ultra Violeta)',
-                'CO2': "CO2"
-            }
+            'sensor_types': dict(Sensor.TYPE_CHOICES),
         })
 
 
@@ -49,5 +43,6 @@ class StationViewPage(View):
         print(station.sensor_set)
         return render(request, "station/view.html", context={
             'station': station,
-            'sensors': sensors
+            'sensors': sensors,
+            'sensor_types': dict(Sensor.TYPE_CHOICES),
         })
