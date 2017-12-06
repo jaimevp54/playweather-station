@@ -91,7 +91,7 @@ while True:
         "station_id": "pw2",
         "location": {
             "latitude": 19.446359,
-            "longitud": -70.683111,
+            "longitude": -70.683111,
             "altitude": 102.45,
         },
         "readings": {
