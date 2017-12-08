@@ -2,6 +2,7 @@ from threading import Thread
 import time
 from datetime import datetime
 from pprint import pprint
+import requests
 
 import json
 
@@ -48,6 +49,8 @@ class PlayWeatherStation:
         self.data_collector = {}
         self.threads = {}
         self.running = False
+        self.delivery_url = 'localhost'
+        self.delivery_port = '8000'
 
     def register(self, sensor_class, name):
         self.registered_sensors[name] = sensor_class(name, self.data_collector)
@@ -64,11 +67,14 @@ class PlayWeatherStation:
 
         for _ in range(10):
             time.sleep(5)
+            self.deliver_data(self.data_collector)
+
+            print("*********\n")
             for key, value in self.data_collector.iteritems():
-                print(key, value)
+                print("->", key, value)
             for sensor in self.data_collector:
                 self.data_collector[sensor] = []
-            print("*********\n\n\n")
+            print("*********\n\n")
 
     def stop(self):
         print("Wating for all systems to shutdown")
@@ -78,3 +84,20 @@ class PlayWeatherStation:
             thread.join()
 
         print("Shutdown successful")
+
+    def deliver_data(self, data):
+        print("\n\n\nsending:")
+        print(json.dumps(data))
+        print("\n to:",
+              'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
+                  url=self.delivery_url,
+                  port=self.delivery_port
+              ))
+        
+        requests.post(
+            'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
+                url=self.delivery_url,
+                port=self.delivery_port
+            ),
+            data=json.dumps(data)
+        )

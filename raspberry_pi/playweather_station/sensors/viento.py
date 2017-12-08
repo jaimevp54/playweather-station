@@ -9,7 +9,6 @@ from playweather_station.core import SensorModule
 
 speed = 0
 
-
 class Wind(SensorModule):
     def run(self):
         print('collector ->' + str(self.data_collector))
@@ -53,6 +52,7 @@ class Wind(SensorModule):
 
         # Definir los canales que usa cada sensor
         vane_channel = 1
+        uv_channel = 2
 
         # Definir el delay entre lecturas
         delay = 1
@@ -69,6 +69,9 @@ class Wind(SensorModule):
             # Leer el dato del sensor de direccion de viento
             vane_level = ReadChannel(vane_channel)
             vane_volts = ConvertVolts(vane_level, 2)
+
+            uv_level = ReadChannel(uv_channel)
+            uv_volts = ConvertVolts(uv_level, 2)
 
             if vane_volts >= 3.76 and vane_volts <= 3.79:
                 vane_grados = 0
@@ -106,12 +109,13 @@ class Wind(SensorModule):
             # print "--------------------------------------------"
             # print("Valor de voltaje: {}V | Valor de direccion: {} grados".format(vane_volts,vane_grados))
             # requests.get('http://192.168.0.5:8000/api/sensor_reading/new?sensor_name=dir_viento&data={}'.format(vane_grados))
+            print("valor de voltaje: {}V | Indice de UV: {}".format(uv_volts, uv_volts/0.1))
 
-            self.collect(vane_grados, sub_name='direccion')
-            self.collect(speed, sub_name='velocidad')
+            #self.collect(vane_grados, sub_name='direccion')
+            #self.collect(speed, sub_name='velocidad')
 
             speed = 0
-
+            
             # Tiempo de espera antes de la siguiente lectura
             time.sleep(5)
 

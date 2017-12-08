@@ -15,7 +15,8 @@ A new sensor requires at 48-burn in. Once burned in a sensor requires
 Tested on Raspberry Pi Zero W
 """
 
-import pigpio
+from playweather_station.sensors.helpers import pigpio
+from playweather_station.core import SensorModule
 import time
 
 CCS811_ADDR = 0x5A  # default I2C Address
@@ -37,8 +38,9 @@ CSS811_APP_START = 0xF4
 CSS811_SW_RESET = 0xFF
 
 
-class CCS811:
-    def __init__(self):
+class CCS811(SensorModule):
+    def __init__(self, name=None, data_collector=None):
+        super(CCS811, self).__init__(name, data_collector)
         self.pi = pigpio.pi()
         self.device = self.pi.i2c_open(1, 0x5A)
         self.tVOC = 0
@@ -108,7 +110,6 @@ class CCS811:
     def setup(self):
         print 'Sensor de CO2 inicializado'
         self.configure_ccs811()
-        
 
     def get_base_line(self):
         a, b = self.pi.i2c_read_i2c_block_data(self.device, CSS811_BASELINE, 2)
@@ -121,14 +122,14 @@ class CCS811:
         value = self.pi.i2c_read_byte_data(self.device, CSS811_STATUS)
         return value & 1 << 3
 
-    def run(self, write_to_file=False):
+    def run(self):
 
         self.setup()
 
-        while True:
+        while self.running:
             if self.data_available():
                 self.read_logorithm_results()
-                print("Nivel de CO2: %d ppm " % (self.CO2))
+                self.collect(self.CO2)
 
             elif self.check_for_error():
                 self.print_error()
@@ -140,12 +141,11 @@ class CCS811:
 
         co2MSB = d[0]
         co2LSB = d[1]
-        #tvocMSB = d[2]
-        #tvocLSB = d[3]
+        # tvocMSB = d[2]
+        # tvocLSB = d[3]
 
         self.CO2 = (co2MSB << 8) | co2LSB
-        #self.tVOC = (tvocMSB << 8) | tvocLSB
+        # self.tVOC = (tvocMSB << 8) | tvocLSB
 
-
-c = CCS811()
-c.run(True)
+# c = CCS811()
+# c.run(True)
