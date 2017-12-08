@@ -1,4 +1,5 @@
 from threading import Thread
+from playweather_station.sensors.gps import GPS
 import time
 from datetime import datetime
 from pprint import pprint
@@ -61,8 +62,11 @@ class PlayWeatherStation:
 
     def initialize(self):
         self.init_db()
-        print("Initializing sensors... ")
+	
+        print("Initializing GPS... ")
+	self.gps = GPS()
 
+        print("Initializing sensors... ")
         self.running = True
         self.threads = {}
         for sensor_name, sensor in self.registered_sensors.iteritems():
@@ -72,24 +76,38 @@ class PlayWeatherStation:
 
         for _ in range(10):
             time.sleep(5)
+
+	    self.gps.read()
+
+	    location = {}
+	    if self.gps.fix !=0:
+	        location = { 
+		    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
+		    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
+		    "altitude": self.gps.altitude if self.gps.altitude else "0",
+	        }
+
+	    else:
+	        location = { 
+		    "latitude": 0,
+		    "longitude": 0,
+		    "altitude": 0,
+	        }
+
             data = {
                 "station_id": self.id,
-                "location": {
-                    "latitude": 19.446264,
-                    "longitude": -70.683918,
-                    "altitude": 201.45,
-                },
+                "location": location,
                 "readings": self.data_collector,
             }
             self.deliver_data(data)
             self.persist_data(data)
 
-            print("*********\n")
-            for key, value in self.data_collector.iteritems():
-                print("->", key, value)
-            for sensor in self.data_collector:
-                self.data_collector[sensor] = []
-            print("*********\n\n")
+           #  print("*********\n")
+           #  for key, value in self.data_collector.iteritems():
+           #      print("->", key, value)
+           #  for sensor in self.data_collector:
+           #      self.data_collector[sensor] = []
+           #  print("*********\n\n")
 
     def stop(self):
         print("Wating for all systems to shutdown")
@@ -103,19 +121,27 @@ class PlayWeatherStation:
     def deliver_data(self, data):
         print("\n\n\nsending:")
         print(json.dumps(data))
-        print("\n to:",
-              'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
-                  url=self.delivery_url,
-                  port=self.delivery_port
-              ))
+        # print("\n to:",
+        #       'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
+        #           url=self.delivery_url,
+        #           port=self.delivery_port
+        #       ))
 
-        requests.post(
+        response = requests.post(
             'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
                 url=self.delivery_url,
                 port=self.delivery_port
             ),
             data=json.dumps(data)
         )
+	
+        for sensor in self.data_collector:
+            self.data_collector[sensor] = []
+
+	if response.status_code==200:
+		print(response.text)
+	else:
+		print(response)
 
     def init_db(self):
         if not os.path.exists(self.db_filename):

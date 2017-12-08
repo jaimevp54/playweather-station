@@ -73,18 +73,18 @@ class GPS:
                         self.fix=NMEA2_array[6]
                         self.altitude=NMEA2_array[9]
                         self.sats=NMEA2_array[7]
-myGPS=GPS()
-while True:
-        myGPS.read()
-        #print myGPS.NMEA1
-        #print myGPS.NMEA2
-        if myGPS.fix!=0:
-                print '-----------Datos de localizacion-------------'
-                print 'Hora formato UTC: ',myGPS.timeUTC
-                print 'Se han encontrado: ',myGPS.sats,' satelites'
-                print 'Latitud: ',myGPS.latDeg, 'Grados', myGPS.latMin,' minutos', myGPS.latHem
-                print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos', myGPS.lonHem
-                print 'Velocidad: ', myGPS.knots
-                print 'Altitud: ',myGPS.altitude
-                print '---------------------------------------------'
-        
+# myGPS=GPS()
+# while True:
+#         myGPS.read()
+#         #print myGPS.NMEA1
+#         #print myGPS.NMEA2
+#         if myGPS.fix!=0:
+#                 print '-----------Datos de localizacion-------------'
+#                 print 'Hora formato UTC: ',myGPS.timeUTC
+#                 print 'Se han encontrado: ',myGPS.sats,' satelites'
+#                 print 'Latitud: ',myGPS.latDeg, 'Grados', myGPS.latMin,' minutos', myGPS.latHem
+#                 print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos', myGPS.lonHem
+#                 print 'Velocidad: ', myGPS.knots
+#                 print 'Altitud: ',myGPS.altitude
+#                 print '---------------------------------------------'
+#         

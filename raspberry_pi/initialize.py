@@ -2,10 +2,12 @@ from playweather_station.core import PlayWeatherStation
 
 from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811
 
-pw = PlayWeatherStation()
-
+pw = PlayWeatherStation("pw_pi")
+pw.delivery_url = "playweather.fwd.wf"
+pw.delivery_port = ""
 # Register module classes in here
 # --> pw.register(module.Class)
+
 
 pw.register(co.CO, 'co')
 pw.register(lluvia.Rain, 'pluvial')
