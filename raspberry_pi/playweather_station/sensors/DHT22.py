@@ -263,7 +263,7 @@ class DHT22(SensorModule):
 
             s.trigger()
 
-            time.sleep(0.2)
+            time.sleep(5)
 
             # print("Lectura #{}: Humedad: {}% Temperatura: {}*C ".format(r, s.humidity(), s.temperature()))
             self.collect(s.humidity(), sub_name='humedad')
@@ -271,7 +271,7 @@ class DHT22(SensorModule):
 
             next_reading += INTERVAL
 
-            time.sleep(next_reading - time.time())
+            #time.sleep(next_reading - time.time())
 
         s.cancel()
         pi.stop()  # !/usr/bin/env python
