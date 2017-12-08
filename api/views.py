@@ -48,13 +48,12 @@ class NewReadingsBundle(View):
     def post(self, request):
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)
-        pprint(data)
         try:
             if Station.objects.filter(id=data["station_id"]).exists():
                 station = Station.objects.get(id=data["station_id"])
-                station.location_altitude = data["location"]["altitude"]
-                station.location_longitude = data["location"]["longitude"]
-                station.location_latitude = data["location"]["latitude"]
+                station.location_altitude = float(data["location"]["altitude"])
+                station.location_longitude = float(data["location"]["longitude"])
+                station.location_latitude = float(data["location"]["latitude"])
 
                 station.last_activity_date = datetime.now()
                 station.save()
@@ -84,13 +83,12 @@ class NewReadingsBundle(View):
         response = "\n\n**************************************************************************\n"
         response += "The following sensors are not registered, therefore have been ignorored: \n"
         for sensor_id in ignored:
-            response += f" - {sensor}\n"
+            response += f" - {sensor_id}\n"
         response += "Please register ignored sensors on Playweather Web Admin site (http://playweather.tk/admin) \n\n"
 
         response += "Data received succesfully for sensors:\n"
         for sensor_id in received:
-            response += f" - {sensor}\n"
-
+            response += f" - {sensor_id}\n"
         return HttpResponse(response)
 
 
