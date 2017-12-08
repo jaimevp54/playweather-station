@@ -3,7 +3,8 @@ import time
 from datetime import datetime
 from pprint import pprint
 import requests
-
+import os
+import sqlite3
 import json
 
 
@@ -44,18 +45,22 @@ class SensorModule(Thread):
 
 
 class PlayWeatherStation:
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.registered_sensors = {}
         self.data_collector = {}
         self.threads = {}
         self.running = False
         self.delivery_url = 'localhost'
         self.delivery_port = '8000'
+        self.db_filename = "pw.sqlite3"
+        self.schema_filename = "pw_schema.sql"
 
     def register(self, sensor_class, name):
         self.registered_sensors[name] = sensor_class(name, self.data_collector)
 
     def initialize(self):
+        self.init_db()
         print("Initializing sensors... ")
 
         self.running = True
@@ -67,7 +72,17 @@ class PlayWeatherStation:
 
         for _ in range(10):
             time.sleep(5)
-            self.deliver_data(self.data_collector)
+            data = {
+                "station_id": self.id,
+                "location": {
+                    "latitude": 19.446264,
+                    "longitude": -70.683918,
+                    "altitude": 201.45,
+                },
+                "readings": self.data_collector,
+            }
+            self.deliver_data(data)
+            self.persist_data(data)
 
             print("*********\n")
             for key, value in self.data_collector.iteritems():
@@ -93,7 +108,7 @@ class PlayWeatherStation:
                   url=self.delivery_url,
                   port=self.delivery_port
               ))
-        
+
         requests.post(
             'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
                 url=self.delivery_url,
@@ -101,3 +116,31 @@ class PlayWeatherStation:
             ),
             data=json.dumps(data)
         )
+
+    def init_db(self):
+        if not os.path.exists(self.db_filename):
+            with sqlite3.connect(self.db_filename) as conn:
+                print('Creating schema')
+                with open(self.schema_filename, 'rt') as f:
+                    schema = f.read()
+                conn.executescript(schema)
+                print('Schema created\n\n')
+        else:
+            print("Database already created")
+
+    def persist_data(self, data):
+        if os.path.exists(self.db_filename):
+            print("Persisting data")
+            with sqlite3.connect(self.db_filename) as conn:
+                for sensor, readings in data['readings'].items():
+                    for reading in readings:
+                        conn.execute(
+                            """
+                            INSERT INTO readings (sensor, value, reading_date)
+                            VALUES (?,?,?) 
+                            """, (sensor, reading['value'], datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                        )
+                conn.commit()
+            print("Done: Data persisted")
+        else:
+            print("Database still not created. Run init_db() before being able to persiste data")
