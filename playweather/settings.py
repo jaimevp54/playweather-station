@@ -36,9 +36,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+
     'home',
     'api',
-    'cities_light'
+    'cities_light',
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +72,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'playweather.wsgi.application'
 
@@ -123,3 +127,8 @@ CITIES_LIGHT_INCLUDE_COUNTRIES = ['DO']
 CITIES_LIGHT_INCLUDE_CITY_TYPES = [
     'PPL', 'PPLA', 'PPLA2', 'PPLA3', 'PPLA4', 'PPLC', 'PPLF', 'PPLG', 'PPLL', 'PPLR', 'PPLS', 'STLMT',
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}

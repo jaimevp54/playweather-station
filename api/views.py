@@ -12,6 +12,8 @@ from django.http import HttpResponse, JsonResponse
 from pprint import pprint
 import json
 
+from rest_framework import viewsets
+from api.serializers import SensorSerializer, StationSerializer, SensorReadingSerializer
 
 # Create your views here.
 
@@ -63,7 +65,8 @@ class NewReadingsBundle(View):
             received = []
             ignored = []
             for sensor_id, readings in data['readings'].items():
-                if Sensor.objects.filter(id=sensor_id).exists():  # TODO check if this sensor belongs to the right station
+                if Sensor.objects.filter(
+                        id=sensor_id).exists():  # TODO check if this sensor belongs to the right station
                     sensor = Sensor.objects.get(id=sensor_id)
                     for reading in readings:
                         SensorReading.objects.create(
@@ -102,4 +105,18 @@ class ReadReading(View):
         for reading in list(readings.values('id', 'sensor', 'data', 'date')):
             reading['sensor_id'] = Sensor.objects.get(pk=reading['sensor']).id
             response.append(reading)
+
         return JsonResponse(response, safe=False)
+
+
+# SERIALIZER VIEWS HERE
+
+
+class SensorViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Sensor.objects.all()
+    serializer_class = SensorSerializer
+
+
+class StationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Station.objects.all()
+    serializer_class = StationSerializer

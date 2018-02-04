@@ -42,7 +42,7 @@ class Sensor(models.Model):
     description = models.TextField(blank=True)  # TODO can be null
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default='Pluvial')
 
-    station = models.ForeignKey(Station)
+    station = models.ForeignKey(Station, related_name='sensors')
     date_registered = models.DateTimeField(auto_now=True)
     last_activity_date = models.DateTimeField(null=True, default=datetime.min)
 
@@ -66,7 +66,7 @@ class Sensor(models.Model):
 class SensorReading(models.Model):
     date = models.DateTimeField(auto_now=True)
     data = models.TextField(default="error")
-    sensor = models.ForeignKey(Sensor)
+    sensor = models.ForeignKey(Sensor, related_name="readings")
 
     def __str__(self):
-        return f'Sensor:{self.sensor.id} at:{self.date}'
+        return f'Sensor:{self.sensor.id}. Value:{self.data}. at:{self.date} '
