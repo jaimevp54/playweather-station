@@ -2,6 +2,12 @@ from playweather_station.core import PlayWeatherStation
 
 from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811, UV
 
+from web_server import web_server
+
+# read configuration file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 pw = PlayWeatherStation("pw_pi")
 pw.delivery_url = "playweather.fwd.wf"
 pw.delivery_port = ""
@@ -23,3 +29,8 @@ except Exception as e:
     pw.stop()
 finally:
     pw.stop()
+
+web_server.init(
+    config=config,
+    pw_instance=pw
+)
