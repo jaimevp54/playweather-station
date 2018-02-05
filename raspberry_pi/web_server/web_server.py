@@ -24,9 +24,10 @@ def get_pw_config_value(key):
     return app.config['PW_CONFIG']['DEFAULT'][key]
 
 
-def init(config, pw_instance):
-    app.config['PW_CONFIG'] = config
+def init(pw_instance):
     app.config['PW_INSTANCE'] = pw_instance
+    app.config['PW_CONFIG'] = app.config['PW_INSTANCE'].config
+
     app.run()
 
 

@@ -7,8 +7,8 @@ from web_server import web_server
 # read configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
+pw = PlayWeatherStation(config)
 
-pw = PlayWeatherStation("pw_pi")
 pw.delivery_url = "playweather.fwd.wf"
 pw.delivery_port = ""
 
@@ -16,11 +16,11 @@ pw.delivery_port = ""
 # --> pw.register(module.Class)
 
 pw.register(co.CO, 'co')
-pw.register(lluvia.Rain, 'pluvial')
-pw.register(DHT22.DHT22, 'DHT22')
-pw.register(viento.Wind, 'viento')
-pw.register(ccs811.CCS811, 'co2')
-pw.register(UV.UV, 'violeta')
+# pw.register(lluvia.Rain, 'pluvial')
+# pw.register(DHT22.DHT22, 'DHT22')
+# pw.register(viento.Wind, 'viento')
+# pw.register(ccs811.CCS811, 'co2')
+# pw.register(UV.UV, 'violeta')
 
 try:
     pw.initialize()
@@ -31,6 +31,5 @@ finally:
     pw.stop()
 
 web_server.init(
-    config=config,
     pw_instance=pw
 )

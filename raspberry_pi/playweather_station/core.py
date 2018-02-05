@@ -10,11 +10,13 @@ import json
 
 
 class SensorModule(Thread):
-    def __init__(self, name=None, data_collector=None):
+    def __init__(self, name=None, data_collector=None, collection_interval=30):
         super(SensorModule, self).__init__()
         self.name = name
         self.data_collector = data_collector
+        self.collection_interval = int(collection_interval)
         self.running = False
+        self.setup_vars = {}
 
     def start(self):
         self.running = True
@@ -23,8 +25,25 @@ class SensorModule(Thread):
     def stop(self):
         self.running = False
 
-    def run(self):
+    def setup(self):
+        pass
+
+    def capture_single_data(self):
+        """ 
+        Capture a single reading from the senser
+        MUST be implemented by each module.
+        """
         raise NotImplementedError
+
+    def run(self):
+        """
+        Run sensor module main loop, which will continue until the station's main thread is stopped.
+        """
+        self.setup()
+        while self.running:
+            time.sleep(self.collection_interval)
+            captured_data = self.capture_single_data()
+            self.collect(captured_data)
 
     def collect(self, value, sub_name=None):
         if self.name and sub_name:
@@ -46,25 +65,31 @@ class SensorModule(Thread):
 
 
 class PlayWeatherStation:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, config):
+        self.config = config
+        self.id = config['PLAYWEATHER_STATION']['id']
         self.registered_sensors = {}
         self.data_collector = {}
+        self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
         self.threads = {}
         self.running = False
-        self.delivery_url = 'localhost'
-        self.delivery_port = '8000'
-        self.db_filename = "pw.sqlite3"
-        self.schema_filename = "pw_schema.sql"
+        self.delivery_url = 'localhost'  # TODO turn this into a constant
+        self.delivery_port = '8000'  # TODO turn this into a constant
+        self.db_filename = "pw.sqlite3"  # TODO turn this into a constant
+        self.schema_filename = "pw_schema.sql"  # TODO turn this into a constant
 
     def register(self, sensor_class, name):
-        self.registered_sensors[name] = sensor_class(name, self.data_collector)
+        try:
+            collection_interval = int(self.config[name]['collection_interval']) if self.config[name] else 30
+            self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval)
+        except Exception as e:
+            print("Error while trying to register module '{}':\n {}".format(name, e))
 
     def initialize(self):
         self.init_db()
-	
+
         print("Initializing GPS... ")
-	self.gps = GPS()
+        self.gps = GPS()
 
         print("Initializing sensors... ")
         self.running = True
@@ -75,24 +100,24 @@ class PlayWeatherStation:
             print("=> sensor: '" + sensor_name + "' is running.")
 
         for _ in range(10):
-            time.sleep(5)
+            time.sleep(self.delivery_interval)
 
-	    self.gps.read()
+            self.gps.read()
 
-	    location = {}
-	    if self.gps.fix !=0:
-	        location = { 
-		    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
-		    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
-		    "altitude": self.gps.altitude if self.gps.altitude else "0",
-	        }
+            location = {}
+            if self.gps.fix != 0:
+                location = {
+                    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
+                    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
+                    "altitude": self.gps.altitude if self.gps.altitude else "0",
+                }
 
-	    else:
-	        location = { 
-		    "latitude": 0,
-		    "longitude": 0,
-		    "altitude": 0,
-	        }
+            else:
+                location = {
+                    "latitude": 0,
+                    "longitude": 0,
+                    "altitude": 0,
+                }
 
             data = {
                 "station_id": self.id,
@@ -102,12 +127,12 @@ class PlayWeatherStation:
             self.deliver_data(data)
             self.persist_data(data)
 
-           #  print("*********\n")
-           #  for key, value in self.data_collector.iteritems():
-           #      print("->", key, value)
-           #  for sensor in self.data_collector:
-           #      self.data_collector[sensor] = []
-           #  print("*********\n\n")
+            #  print("*********\n")
+            #  for key, value in self.data_collector.iteritems():
+            #      print("->", key, value)
+            #  for sensor in self.data_collector:
+            #      self.data_collector[sensor] = []
+            #  print("*********\n\n")
 
     def stop(self):
         print("Wating for all systems to shutdown")
@@ -134,14 +159,14 @@ class PlayWeatherStation:
             ),
             data=json.dumps(data)
         )
-	
+
         for sensor in self.data_collector:
             self.data_collector[sensor] = []
 
-	if response.status_code==200:
-		print(response.text)
-	else:
-		print(response)
+        if response.status_code == 200:
+            print(response.text)
+        else:
+            print(response)
 
     def init_db(self):
         if not os.path.exists(self.db_filename):
