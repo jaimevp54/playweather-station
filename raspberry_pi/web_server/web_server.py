@@ -5,8 +5,9 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
-    return render_template('index.html', config=app.config['PW_CONFIG'])
+def index():
+    sensor_list=[sensor for sensor in app.config["PW_CONFIG"] if sensor != "PLAYWEATHER_STATION" and sensor!="DEFAULT"]
+    return render_template('index.html', sensors=sensor_list, config=app.config['PW_CONFIG'])
 
 
 @app.route('/save_config')
@@ -31,9 +32,30 @@ def init(pw_instance):
     app.run()
 
 
+def default_config():
+    new_config = configparser.ConfigParser()
+    new_config["PLAYWEATHER_STATION"] = {
+        "id": "station",
+        "delivery_interval": "5",
+    }
+    return new_config
+
+def validate(config):
+    if "PLAYWEATHER_STATION" not in config:
+        return False
+    if "id" not in config["PLAYWEATHER"]:
+        return False
+    return True
+
 if __name__ == '__main__':
+
+
     config = configparser.ConfigParser()
     config.read('config.ini')
+    # if not validate(config):
+    #    config = default_config()
+
     app.config['PW_CONFIG'] = config
+
     print(app.config['PW_CONFIG'])
     app.run()

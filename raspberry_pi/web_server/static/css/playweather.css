@@ -1,3 +1,9 @@
+
+.row>div {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 5px 0;
+}
 #map {
     -webkit-border-radius: 5%;
     -moz-border-radius: 5%;
@@ -11,4 +17,8 @@
 }
 .legends label{
     margin: 0 10px;
+}
+
+.help-block{
+    font-size: 11px;
 }
