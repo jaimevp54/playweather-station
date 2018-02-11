@@ -1,21 +1,33 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import configparser
 
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    sensor_list=[sensor for sensor in app.config["PW_CONFIG"] if sensor != "PLAYWEATHER_STATION" and sensor!="DEFAULT"]
+    if request.method == "POST":
+        update_config(request.form)
+    sensor_list = [sensor for sensor in app.config["PW_CONFIG"] if
+                   sensor != "PLAYWEATHER_STATION" and sensor != "DEFAULT"]
     return render_template('index.html', sensors=sensor_list, config=app.config['PW_CONFIG'])
 
+@app.route('/restart')
+def restart():
+    # do something here
+    return "Restart not implemented"
 
-@app.route('/save_config')
-def save_config():
+
+def update_config(form):
+    form = form.to_dict()
     with open('config.ini', 'w') as configfile:
-        config = app.config['PW_CONFIG']
-        config['DEFAULT']['owner'] = "Pedro"
-        config['DEFAULT']['freq'] = "23"
+        config["PLAYWEATHER_STATION"]["id"] = form.pop('station-id')
+        config["PLAYWEATHER_STATION"]["delivery_interval"] = form.pop("delivery-interval")
+
+        for sensor in {sensor.replace("-id", "").replace("-collection-interval", "") for sensor in form}:
+            config[sensor]['id'] = form[sensor + '-id']
+            config[sensor]['collection_interval'] = form[sensor + '-collection-interval']
+
         config.write(configfile)
 
     return 'Done'
@@ -40,6 +52,7 @@ def default_config():
     }
     return new_config
 
+
 def validate(config):
     if "PLAYWEATHER_STATION" not in config:
         return False
@@ -47,13 +60,22 @@ def validate(config):
         return False
     return True
 
+
 if __name__ == '__main__':
-
-
     config = configparser.ConfigParser()
     config.read('config.ini')
-    # if not validate(config):
-    #    config = default_config()
+
+    with open('config.ini', 'w') as configfile:
+        config["PLAYWEATHER_STATION"] = {
+            "id": "pw_station",
+            "delivery_interval": "12"
+        }
+        config["CO"] = {
+            "id": "co",
+            "collection_interval": "3"
+        }
+
+        config.write(configfile)
 
     app.config['PW_CONFIG'] = config
 

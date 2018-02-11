@@ -43,7 +43,8 @@
                                 <div class="form-group row">
                                     <label class="form-control-label">Identificador (ID)</label>
                                     <div class="">
-                                        <input type="text" id="sensor-id" name="sensor-id" class="form-control"
+                                        <input type="text" id="{{ sensor }}-id" name="{{ sensor }}-id"
+                                               class="form-control"
                                                placeholder="ID..." value="{{ config[sensor]["id"] }}">
                                         <span class="help-block text-muted">Identificador a mostrar en la plataforma web de Playweather.</span>
                                     </div>
@@ -51,7 +52,8 @@
                                 <div class="form-group row">
                                     <label class="form-control-label">Intervalo de lectura</label>
                                     <div class="">
-                                        <input type="number" id="email-input" name="email-input" class="form-control"
+                                        <input type="number" id="{{ sensor }}-collection-interval"
+                                               name="{{ sensor }}-collection-interval" class="form-control"
                                                placeholder="5..." value="{{ config[sensor]["collection_interval"] }}">
                                         <span class="help-block text-muted">Tiempo de espera entre lectura de datos. (Tiempo en segundos)</span>
                                     </div>
@@ -76,9 +78,11 @@
 
             <div class="row text-center">
                 <div class="col-md-12">
-                <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
-                    Aplicar Cambios
-                </button>
+                    <a href="{{ url_for('restart') }}">
+                        <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
+                            Aplicar Cambios
+                        </button>
+                    </a>
                 </div>
             </div>
         </form>

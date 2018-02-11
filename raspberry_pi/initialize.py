@@ -4,10 +4,29 @@ from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811, UV
 
 from web_server import web_server
 
+
+def default_config():
+    new_config = configparser.ConfigParser()
+    new_config["PLAYWEATHER_STATION"] = {
+        "id": "station",
+        "delivery_interval": "5",
+    }
+def validate(config)
+    if "PLAYWEATHER_STATION" not in config:
+        return False
+    if "id" not in config["PLAYWEATHER"]:
+        return False
+    return True
+
+
 # read configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
-pw = PlayWeatherStation(config)
+
+if not validate(config):
+    config = default_config()
+
+pw = PlayWeatherStation()
 
 pw.delivery_url = "playweather.fwd.wf"
 pw.delivery_port = ""
@@ -22,8 +41,13 @@ pw.register(co.CO, 'co')
 # pw.register(ccs811.CCS811, 'co2')
 # pw.register(UV.UV, 'violeta')
 
+
+for sensor in pw.registered_sensors:
+    config[sensor]["id"] = sensor
+    config.write('config.ini')
+    
 try:
-    pw.initialize()
+    pw.initialize(config,gps_on=False)
 except Exception as e:
     print('An error has occurred: ', e)
     pw.stop()

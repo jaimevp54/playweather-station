@@ -65,12 +65,11 @@ class SensorModule(Thread):
 
 
 class PlayWeatherStation:
-    def __init__(self, config):
-        self.config = config
-        self.id = config['PLAYWEATHER_STATION']['id']
+    def __init__(self):
+        self.id = "not-set"
         self.registered_sensors = {}
         self.data_collector = {}
-        self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
+        self.delivery_interval = 30
         self.threads = {}
         self.running = False
         self.delivery_url = 'localhost'  # TODO turn this into a constant
@@ -78,14 +77,24 @@ class PlayWeatherStation:
         self.db_filename = "pw.sqlite3"  # TODO turn this into a constant
         self.schema_filename = "pw_schema.sql"  # TODO turn this into a constant
 
-    def register(self, sensor_class, name):
+    def register(self, sensor_class, name=""):
+        if not name:
+            name = "sensor"+str(len(self.registered_sensors)) # TODO make sure these names are not possible to be repeated
+
         try:
-            collection_interval = int(self.config[name]['collection_interval']) if self.config[name] else 30
+            collection_interval = int(self.config[name]['collection_interval']) if name in self.config else 30
             self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval)
         except Exception as e:
-            print("Error while trying to register module '{}':\n {}".format(name, e))
+            print("Error while trying to register module '{}':\n {}".format(name, e.message))
 
-    def initialize(self):
+    def initialize(self,config, gps_on=True):
+        # set configuration parameters
+        self.config = config
+        self.id = config['PLAYWEATHER_STATION']['id']
+        self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
+
+
+        # initialize database
         self.init_db()
 
         print("Initializing GPS... ")
