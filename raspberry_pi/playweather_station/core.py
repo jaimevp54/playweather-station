@@ -39,6 +39,7 @@ class SensorModule(Thread):
         """
         Run sensor module main loop, which will continue until the station's main thread is stopped.
         """
+        print('Setting up sensor: '+self.name)
         self.setup()
         while self.running:
             time.sleep(self.collection_interval)
@@ -82,8 +83,7 @@ class PlayWeatherStation:
             name = "sensor"+str(len(self.registered_sensors)) # TODO make sure these names are not possible to be repeated
 
         try:
-            collection_interval = int(self.config[name]['collection_interval']) if name in self.config else 30
-            self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval)
+            self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval=2)
         except Exception as e:
             print("Error while trying to register module '{}':\n {}".format(name, e.message))
 
@@ -93,6 +93,11 @@ class PlayWeatherStation:
         self.id = config['PLAYWEATHER_STATION']['id']
         self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
 
+        for sensor_name, sensor in self.registered_sensors.iteritems():
+            try:
+                sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
+            except Exception as e:
+                print(sensor_name+" found in config was not installed? e:"+ e.message)
 
         # initialize database
         self.init_db()
@@ -103,6 +108,7 @@ class PlayWeatherStation:
         print("Initializing sensors... ")
         self.running = True
         self.threads = {}
+
         for sensor_name, sensor in self.registered_sensors.iteritems():
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
@@ -110,11 +116,11 @@ class PlayWeatherStation:
 
         for _ in range(10):
             time.sleep(self.delivery_interval)
-
-            self.gps.read()
+            # self.gps.read()
 
             location = {}
-            if self.gps.fix != 0:
+            # if self.gps.fix !=0:
+            if False:
                 location = {
                     "latitude": self.gps.latDeg if self.gps.latDeg else "0",
                     "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
@@ -133,8 +139,9 @@ class PlayWeatherStation:
                 "location": location,
                 "readings": self.data_collector,
             }
-            self.deliver_data(data)
+
             self.persist_data(data)
+            self.deliver_data(data)
 
             #  print("*********\n")
             #  for key, value in self.data_collector.iteritems():

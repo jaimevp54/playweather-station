@@ -1,9 +1,9 @@
 from playweather_station.core import PlayWeatherStation
 
-from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811, UV
+from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811
 
 from web_server import web_server
-
+import configparser
 
 def default_config():
     new_config = configparser.ConfigParser()
@@ -11,10 +11,11 @@ def default_config():
         "id": "station",
         "delivery_interval": "5",
     }
-def validate(config)
+
+def validate(config):
     if "PLAYWEATHER_STATION" not in config:
         return False
-    if "id" not in config["PLAYWEATHER"]:
+    if "id" not in config["PLAYWEATHER_STATION"]:
         return False
     return True
 
@@ -42,9 +43,12 @@ pw.register(co.CO, 'co')
 # pw.register(UV.UV, 'violeta')
 
 
-for sensor in pw.registered_sensors:
-    config[sensor]["id"] = sensor
-    config.write('config.ini')
+# for sensor in pw.registered_sensors:
+#     if sensor.upper() not in config:
+#         config[sensor.upper()]["id"] = sensor
+    
+# print("-> writing config file")
+# config.write('config.ini')
     
 try:
     pw.initialize(config,gps_on=False)
