@@ -40,7 +40,6 @@ class StationViewPage(View):
     def get(self, request, *args, **kwargs):
         station = Station.objects.get(id=kwargs["station_id"])
         sensors = Sensor.objects.filter(station=station)
-        print(station.sensor_set)
         return render(request, "station/view.html", context={
             'station': station,
             'sensors': sensors,
