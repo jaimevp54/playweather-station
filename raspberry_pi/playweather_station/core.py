@@ -62,9 +62,9 @@ class PlayWeatherStation:
 
     def initialize(self):
         self.init_db()
-	
+
         print("Initializing GPS... ")
-	self.gps = GPS()
+        self.gps = GPS()
 
         print("Initializing sensors... ")
         self.running = True
@@ -77,22 +77,22 @@ class PlayWeatherStation:
         for _ in range(10):
             time.sleep(5)
 
-	    self.gps.read()
+            self.gps.read()
 
-	    location = {}
-	    if self.gps.fix !=0:
-	        location = { 
-		    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
-		    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
-		    "altitude": self.gps.altitude if self.gps.altitude else "0",
-	        }
+            location = {}
+            if self.gps.fix != 0:
+                location = {
+                    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
+                    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
+                    "altitude": self.gps.altitude if self.gps.altitude else "0",
+                }
 
-	    else:
-	        location = { 
-		    "latitude": 0,
-		    "longitude": 0,
-		    "altitude": 0,
-	        }
+            else:
+                location = {
+                    "latitude": 0,
+                    "longitude": 0,
+                    "altitude": 0,
+                }
 
             data = {
                 "station_id": self.id,
@@ -102,12 +102,12 @@ class PlayWeatherStation:
             self.deliver_data(data)
             self.persist_data(data)
 
-           #  print("*********\n")
-           #  for key, value in self.data_collector.iteritems():
-           #      print("->", key, value)
-           #  for sensor in self.data_collector:
-           #      self.data_collector[sensor] = []
-           #  print("*********\n\n")
+            #  print("*********\n")
+            #  for key, value in self.data_collector.iteritems():
+            #      print("->", key, value)
+            #  for sensor in self.data_collector:
+            #      self.data_collector[sensor] = []
+            #  print("*********\n\n")
 
     def stop(self):
         print("Wating for all systems to shutdown")
@@ -134,14 +134,14 @@ class PlayWeatherStation:
             ),
             data=json.dumps(data)
         )
-	
+
         for sensor in self.data_collector:
             self.data_collector[sensor] = []
 
-	if response.status_code==200:
-		print(response.text)
-	else:
-		print(response)
+        if response.status_code == 200:
+            print(response.text)
+        else:
+            print(response)
 
     def init_db(self):
         if not os.path.exists(self.db_filename):
