@@ -39,7 +39,6 @@ INSTALLED_APPS = [
 
     'home',
     'api',
-    'cities_light',
 
     'rest_framework',
 ]
@@ -121,12 +120,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
-CITIES_LIGHT_TRANSLATION_LANGUAGES = ['es']
-CITIES_LIGHT_INCLUDE_COUNTRIES = ['DO']
-CITIES_LIGHT_INCLUDE_CITY_TYPES = [
-    'PPL', 'PPLA', 'PPLA2', 'PPLA3', 'PPLA4', 'PPLC', 'PPLF', 'PPLG', 'PPLL', 'PPLR', 'PPLS', 'STLMT',
-]
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',

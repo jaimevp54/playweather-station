@@ -11,7 +11,6 @@ class Station(models.Model):
     owner = models.ForeignKey(User)
     id = models.CharField(primary_key=True, max_length=255)  # TODO must be unique
     name = models.CharField(max_length=255, unique=True)  # TODO must be unique
-    # city = models.ForeignKey("cities_light.City", null=True, on_delete=models.SET_NULL)
     location_longitude = models.FloatField(null=True, editable=False)
     location_latitude = models.FloatField(null=True, editable=False)
     location_altitude = models.FloatField(null=True, editable=False)
