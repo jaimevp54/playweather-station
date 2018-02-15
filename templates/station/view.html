@@ -168,7 +168,7 @@
 
             var selectedSensor = $('.tab-pane.active')[0].id.slice(7);
             var readings = 15;
-            $.get("http://localhost:8000/api/sensor_reading/read/?amount=" + readings + "&sensor=" + selectedSensor, function (response, status) {
+            $.get("http://{{ ROOT_URL }}/api/sensor_reading/read/?amount=" + readings + "&sensor=" + selectedSensor, function (response, status) {
                 updateTable(response);
                 updateChart(response);
             });
