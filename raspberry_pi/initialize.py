@@ -58,6 +58,4 @@ except Exception as e:
 finally:
     pw.stop()
 
-web_server.init(
-    pw_instance=pw
-)
+

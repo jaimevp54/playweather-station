@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request ,redirect
+import subprocess
 import configparser
 
 app = Flask(__name__)
@@ -16,6 +17,30 @@ def index():
 def restart():
     # do something here
     return "Restart not implemented"
+
+
+@app.route('/start')
+def start_station():
+    pw_station_process=app.config.get('pw_station_process', None)
+
+    if pw_station_process is not None:
+        return "A station is already running?"
+
+    pw_station_process=subprocess.Popen(['python','-m','initialize'])
+    app.config['pw_station_process']=pw_station_process
+
+    return redirect(url_for('index'))
+
+@app.route('/stop')
+def stop_station():
+    pw_station_process=app.config.pop('pw_station_process', None)
+
+    if pw_station_process is None:
+        return "A station is already running?"
+
+    pw_station_process.terminate()
+
+    return redirect(url_for('index'))
 
 
 def update_config(form):
@@ -37,11 +62,9 @@ def get_pw_config_value(key):
     return app.config['PW_CONFIG']['DEFAULT'][key]
 
 
-def init(pw_instance):
-    app.config['PW_INSTANCE'] = pw_instance
-    app.config['PW_CONFIG'] = app.config['PW_INSTANCE'].config
-
-    app.run()
+def init(pw_config):
+    app.config['PW_CONFIG'] = pw_config
+    app.run(debug=True)
 
 
 def default_config():
@@ -64,20 +87,5 @@ def validate(config):
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
-
-    with open('config.ini', 'w') as configfile:
-        config["PLAYWEATHER_STATION"] = {
-            "id": "pw_station",
-            "delivery_interval": "12"
-        }
-        config["CO"] = {
-            "id": "co",
-            "collection_interval": "3"
-        }
-
-        config.write(configfile)
-
     app.config['PW_CONFIG'] = config
-
-    print(app.config['PW_CONFIG'])
-    app.run()
+    app.run(debug=True)

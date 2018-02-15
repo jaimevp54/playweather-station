@@ -78,9 +78,14 @@
 
             <div class="row text-center">
                 <div class="col-md-12">
-                    <a href="{{ url_for('restart') }}">
+                    <a href="{{ url_for('start_station') }}">
                         <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
-                            Aplicar Cambios
+                            Iniciar Estacion
+                        </button>
+                    </a>
+                    <a href="{{ url_for('stop_station') }}">
+                        <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
+                            Terminar Estacion
                         </button>
                     </a>
                 </div>
