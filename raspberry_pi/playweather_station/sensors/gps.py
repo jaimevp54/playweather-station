@@ -1,6 +1,6 @@
 import serial
 from time import sleep
-ser=serial.Serial('/dev/ttyS0',9600)
+ser=serial.Serial('/dev/ttySOFT0',9600)
 
 class GPS:
         def __init__(self):
@@ -21,14 +21,14 @@ class GPS:
                 #Commands for which NMEA Sentences are sent
                 ser.write(BAUD_57600)
                 sleep(1)
-                ser.baudrate=57600
+                ser.baudrate=9600
                 GPRMC_ONLY= "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n" #Send only the GPRMC Sentence
                 GPRMC_GPGGA="$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"#Send GPRMC AND GPGGA Sentences
                 SEND_ALL ="$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n" #Send All Sentences
                 SEND_NOTHING="$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n" #Send Nothing
                 ser.write(UPDATE_1_sec)
                 sleep(1)
-                ser.write(MEAS_5_sec)
+                ser.write(MEAS_1_sec)
                 sleep(1)
                 ser.write(GPRMC_GPGGA)
                 sleep(1)
@@ -73,18 +73,19 @@ class GPS:
                         self.fix=NMEA2_array[6]
                         self.altitude=NMEA2_array[9]
                         self.sats=NMEA2_array[7]
-# myGPS=GPS()
-# while True:
-#         myGPS.read()
-#         #print myGPS.NMEA1
-#         #print myGPS.NMEA2
-#         if myGPS.fix!=0:
-#                 print '-----------Datos de localizacion-------------'
-#                 print 'Hora formato UTC: ',myGPS.timeUTC
-#                 print 'Se han encontrado: ',myGPS.sats,' satelites'
-#                 print 'Latitud: ',myGPS.latDeg, 'Grados', myGPS.latMin,' minutos', myGPS.latHem
-#                 print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos', myGPS.lonHem
-#                 print 'Velocidad: ', myGPS.knots
-#                 print 'Altitud: ',myGPS.altitude
-#                 print '---------------------------------------------'
-#         
+myGPS=GPS()
+while True:
+         myGPS.read()
+         print myGPS.NMEA1
+         print myGPS.NMEA2
+##         if myGPS.fix !=0 :
+##                 print '-----------Datos de localizacion-------------'
+##                 print 'Hora formato UTC: ',myGPS.timeUTC
+##                 print 'Se han encontrado: ',myGPS.sats,' satelites'
+##                 print 'Latitud: ',myGPS.latDeg, 'Grados', myGPS.latMin,' minutos', myGPS.latHem
+##                 print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos', myGPS.lonHem
+##                 print 'Velocidad: ', myGPS.knots
+##                 print 'Altitud: ',myGPS.altitude
+##                 print '---------------------------------------------'
+##                 
+       

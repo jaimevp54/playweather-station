@@ -46,6 +46,8 @@ class SensorModule(Thread):
             captured_data = self.capture_single_data()
             self.collect(captured_data)
 
+        self.cleanup()
+
     def collect(self, value, sub_name=None):
         if self.name and sub_name:
             sensor_name = self.name + '_' + sub_name
@@ -73,7 +75,7 @@ class PlayWeatherStation:
         self.delivery_interval = 30
         self.threads = {}
         self.running = False
-        self.delivery_url = 'localhost'  # TODO turn this into a constant
+        self.delivery_url = 'https://playweather-pucmm.herokuapp.com'  # TODO turn this into a constant
         self.delivery_port = '8000'  # TODO turn this into a constant
         self.db_filename = "pw.sqlite3"  # TODO turn this into a constant
         self.schema_filename = "pw_schema.sql"  # TODO turn this into a constant
@@ -114,7 +116,7 @@ class PlayWeatherStation:
             self.threads[sensor_name].start()
             print("=> sensor: '" + sensor_name + "' is running.")
 
-        for _ in range(10):
+        while True:
             time.sleep(self.delivery_interval)
             # self.gps.read()
 
@@ -140,7 +142,7 @@ class PlayWeatherStation:
                 "readings": self.data_collector,
             }
 
-            self.persist_data(data)
+            # self.persist_data(data)
             self.deliver_data(data)
 
             #  print("*********\n")
@@ -169,9 +171,8 @@ class PlayWeatherStation:
         #       ))
 
         response = requests.post(
-            'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
+            '{url}/api/sensor_readings_bundle/new/'.format(
                 url=self.delivery_url,
-                port=self.delivery_port
             ),
             data=json.dumps(data)
         )

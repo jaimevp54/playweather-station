@@ -29,16 +29,16 @@ if not validate(config):
 
 pw = PlayWeatherStation()
 
-pw.delivery_url = "playweather.fwd.wf"
+pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
 pw.delivery_port = ""
 
 # Register module classes in here
 # --> pw.register(module.Class)
 
-pw.register(co.CO, 'co')
-# pw.register(lluvia.Rain, 'pluvial')
+# pw.register(co.CO, 'co')
+pw.register(lluvia.Rain, 'pluvial')
 # pw.register(DHT22.DHT22, 'DHT22')
-# pw.register(viento.Wind, 'viento')
+pw.register(viento.Wind, 'viento')
 # pw.register(ccs811.CCS811, 'co2')
 # pw.register(UV.UV, 'violeta')
 
@@ -51,7 +51,7 @@ pw.register(co.CO, 'co')
 # config.write('config.ini')
     
 try:
-    pw.initialize(config,gps_on=False)
+    pw.initialize(config)
 except Exception as e:
     print('An error has occurred: ', e)
     pw.stop()
