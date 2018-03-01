@@ -97,7 +97,7 @@
 
         setInterval(function () {
             var selectedSensor = $('.tab-pane.active')[0].id.slice(7);
-            $.get("http://localhost:8000/api/sensor_reading/read/?amount=5&sensor=" + selectedSensor, function (response, status) {
+            $.get("https://{{ ROOT_URL }}/api/sensor_reading/read/?amount=5&sensor=" + selectedSensor, function (response, status) {
                 $readings_table = $('#readings-table>tbody').empty();
                 response.forEach(function (data) {
                     $readings_table.append('<tr> <th>' + data['id'] + '</th> <td>' + data['sensor_name'] + '</td><td>' + data['data'] + '</td><td>' + data['date'] + '</td></tr>')

@@ -116,6 +116,7 @@ class PlayWeatherStation:
             self.threads[sensor_name].start()
             print("=> sensor: '" + sensor_name + "' is running.")
 
+
         while True:
             time.sleep(self.delivery_interval)
             # self.gps.read()

@@ -39,13 +39,13 @@ INSTALLED_APPS = [
 
     'home',
     'api',
-    'cities_light',
 
     'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,15 +120,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
-CITIES_LIGHT_TRANSLATION_LANGUAGES = ['es']
-CITIES_LIGHT_INCLUDE_COUNTRIES = ['DO']
-CITIES_LIGHT_INCLUDE_CITY_TYPES = [
-    'PPL', 'PPLA', 'PPLA2', 'PPLA3', 'PPLA4', 'PPLC', 'PPLF', 'PPLG', 'PPLL', 'PPLR', 'PPLS', 'STLMT',
-]
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'playweather/static'),
+    os.path.join(BASE_DIR, 'home/static')
+)
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     )
 }
+
