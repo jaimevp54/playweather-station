@@ -6,14 +6,14 @@ from playweather_station.sensors.helpers.mq import MQ
 
 
 class CO(SensorModule):
-    def run(self):
-        try:
-            mq = MQ()
+    def setup(self):
+        # self.setup_vars['MQ'] = MQ()
+        pass
 
-            while self.running:
-                perc = mq.MQPercentage()
-                print("CO: %g ppm" % (perc["CO"]))
-                self.collect(perc["CO"])
-                time.sleep(3)
-        except Exception as e:
-            print("\nAbortado: ", e.message)
+    def capture_single_data(self):
+        # mq = self.setup_vars['MQ']
+        # perc = mq.MQPercentage()
+        # print("CO: %g ppm" % (perc["CO"]))
+        # return perc["CO"]
+        print("CO.. returnting fake value")
+        return 3.14

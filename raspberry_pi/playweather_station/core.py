@@ -10,11 +10,13 @@ import json
 
 
 class SensorModule(Thread):
-    def __init__(self, name=None, data_collector=None):
+    def __init__(self, name=None, data_collector=None, collection_interval=30):
         super(SensorModule, self).__init__()
         self.name = name
         self.data_collector = data_collector
+        self.collection_interval = int(collection_interval)
         self.running = False
+        self.setup_vars = {}
 
     def start(self):
         self.running = True
@@ -23,8 +25,28 @@ class SensorModule(Thread):
     def stop(self):
         self.running = False
 
-    def run(self):
+    def setup(self):
+        pass
+
+    def capture_single_data(self):
+        """ 
+        Capture a single reading from the senser
+        MUST be implemented by each module.
+        """
         raise NotImplementedError
+
+    def run(self):
+        """
+        Run sensor module main loop, which will continue until the station's main thread is stopped.
+        """
+        print('Setting up sensor: '+self.name)
+        self.setup()
+        while self.running:
+            time.sleep(self.collection_interval)
+            captured_data = self.capture_single_data()
+            self.collect(captured_data)
+
+        self.cleanup()
 
     def collect(self, value, sub_name=None):
         if self.name and sub_name:
@@ -46,21 +68,40 @@ class SensorModule(Thread):
 
 
 class PlayWeatherStation:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self):
+        self.id = "not-set"
         self.registered_sensors = {}
         self.data_collector = {}
+        self.delivery_interval = 30
         self.threads = {}
         self.running = False
-        self.delivery_url = 'localhost'
-        self.delivery_port = '8000'
-        self.db_filename = "pw.sqlite3"
-        self.schema_filename = "pw_schema.sql"
+        self.delivery_url = 'https://playweather-pucmm.herokuapp.com'  # TODO turn this into a constant
+        self.delivery_port = '8000'  # TODO turn this into a constant
+        self.db_filename = "pw.sqlite3"  # TODO turn this into a constant
+        self.schema_filename = "pw_schema.sql"  # TODO turn this into a constant
 
-    def register(self, sensor_class, name):
-        self.registered_sensors[name] = sensor_class(name, self.data_collector)
+    def register(self, sensor_class, name=""):
+        if not name:
+            name = "sensor"+str(len(self.registered_sensors)) # TODO make sure these names are not possible to be repeated
 
-    def initialize(self):
+        try:
+            self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval=2)
+        except Exception as e:
+            print("Error while trying to register module '{}':\n {}".format(name, e.message))
+
+    def initialize(self,config, gps_on=True):
+        # set configuration parameters
+        self.config = config
+        self.id = config['PLAYWEATHER_STATION']['id']
+        self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
+
+        for sensor_name, sensor in self.registered_sensors.iteritems():
+            try:
+                sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
+            except Exception as e:
+                print(sensor_name+" found in config was not installed? e:"+ e.message)
+
+        # initialize database
         self.init_db()
 
         print("Initializing GPS... ")
@@ -69,18 +110,20 @@ class PlayWeatherStation:
         print("Initializing sensors... ")
         self.running = True
         self.threads = {}
+
         for sensor_name, sensor in self.registered_sensors.iteritems():
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
             print("=> sensor: '" + sensor_name + "' is running.")
 
-        for _ in range(10):
-            time.sleep(5)
 
-            self.gps.read()
+        while True:
+            time.sleep(self.delivery_interval)
+            # self.gps.read()
 
             location = {}
-            if self.gps.fix != 0:
+            # if self.gps.fix !=0:
+            if False:
                 location = {
                     "latitude": self.gps.latDeg if self.gps.latDeg else "0",
                     "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
@@ -99,8 +142,9 @@ class PlayWeatherStation:
                 "location": location,
                 "readings": self.data_collector,
             }
+
+            # self.persist_data(data)
             self.deliver_data(data)
-            self.persist_data(data)
 
             #  print("*********\n")
             #  for key, value in self.data_collector.iteritems():
@@ -128,9 +172,8 @@ class PlayWeatherStation:
         #       ))
 
         response = requests.post(
-            'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
+            '{url}/api/sensor_readings_bundle/new/'.format(
                 url=self.delivery_url,
-                port=self.delivery_port
             ),
             data=json.dumps(data)
         )

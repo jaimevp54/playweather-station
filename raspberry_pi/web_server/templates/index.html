@@ -1,0 +1,96 @@
+{% extends 'base/base.html' %}
+{% block content %}
+
+    <div class="animated fadeIn">
+        <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Configuraciones Generales</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label">Identificador (ID)</label>
+                                <div class="col-md-9">
+                                    <input type="text" id="station-id" name="station-id" class="form-control"
+                                           placeholder="ID..." value="{{ config["PLAYWEATHER_STATION"]["id"] }}">
+                                    <span class="help-block text-muted">Identificador a mostrar en la plataforma web de Playweather.</span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label">Intervalo entre transmisi&oacute;n</label>
+                                <div class="col-md-9">
+                                    <input type="number" id="delivery-interval" name="delivery-interval"
+                                           class="form-control"
+                                           placeholder="5..."
+                                           value="{{ config["PLAYWEATHER_STATION"]["delivery_interval"] }}">
+                                    <span class="help-block text-muted">Tiempo de espera entre cada envio de datos a la plataforma web. (Tiempo en segundos)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </div>
+                {% for sensor in sensors %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>{{ sensor }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label class="form-control-label">Identificador (ID)</label>
+                                    <div class="">
+                                        <input type="text" id="{{ sensor }}-id" name="{{ sensor }}-id"
+                                               class="form-control"
+                                               placeholder="ID..." value="{{ config[sensor]["id"] }}">
+                                        <span class="help-block text-muted">Identificador a mostrar en la plataforma web de Playweather.</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-control-label">Intervalo de lectura</label>
+                                    <div class="">
+                                        <input type="number" id="{{ sensor }}-collection-interval"
+                                               name="{{ sensor }}-collection-interval" class="form-control"
+                                               placeholder="5..." value="{{ config[sensor]["collection_interval"] }}">
+                                        <span class="help-block text-muted">Tiempo de espera entre lectura de datos. (Tiempo en segundos)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+
+            </div>
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i>
+                        Guardar
+                    </button>
+                    <button type="reset" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Deshacer</button>
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <a href="{{ url_for('start_station') }}">
+                        <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
+                            Iniciar Estacion
+                        </button>
+                    </a>
+                    <a href="{{ url_for('stop_station') }}">
+                        <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-dot-circle-o"></i>
+                            Terminar Estacion
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
