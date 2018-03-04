@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request ,redirect
+import sqlite3
+from flask import Flask, render_template, request, redirect, jsonify
 import subprocess
 import configparser
 
@@ -11,7 +12,35 @@ def index():
         update_config(request.form)
     sensor_list = [sensor for sensor in app.config["PW_CONFIG"] if
                    sensor != "PLAYWEATHER_STATION" and sensor != "DEFAULT"]
-    return render_template('index.html', sensors=sensor_list, config=app.config['PW_CONFIG'])
+    return render_template('settings.html', sensors=sensor_list, config=app.config['PW_CONFIG'])
+
+
+@app.route('/data_tables')
+def data_tables():
+    return render_template('data_tables.html')
+
+
+@app.route('/data_tables/sensor_readings')
+def get_sensor_readings():
+    db_filename = "../pw.sqlite3"
+    with sqlite3.connect(db_filename) as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM readings Limit 10")
+        result = {'data': c.fetchall()}
+    return jsonify(result)
+
+
+@app.route('/data_tables/gps_readings')
+def get_gps_readings():
+    db_filename = "../pw.sqlite3"
+    with sqlite3.connect(db_filename) as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM readings Limit 10")
+
+        result = {'data': c.fetchall()}
+
+    return jsonify(result)
+
 
 @app.route('/restart')
 def restart():
@@ -21,19 +50,20 @@ def restart():
 
 @app.route('/start')
 def start_station():
-    pw_station_process=app.config.get('pw_station_process', None)
+    pw_station_process = app.config.get('pw_station_process', None)
 
     if pw_station_process is not None:
         return "A station is already running?"
 
-    pw_station_process=subprocess.Popen(['python','-m','initialize'])
-    app.config['pw_station_process']=pw_station_process
+    pw_station_process = subprocess.Popen(['python', '-m', 'initialize'])
+    app.config['pw_station_process'] = pw_station_process
 
     return redirect(url_for('index'))
 
+
 @app.route('/stop')
 def stop_station():
-    pw_station_process=app.config.pop('pw_station_process', None)
+    pw_station_process = app.config.pop('pw_station_process', None)
 
     if pw_station_process is None:
         return "A station is already running?"
