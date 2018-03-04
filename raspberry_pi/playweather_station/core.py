@@ -10,6 +10,8 @@ import json
 
 
 class SensorModule(Thread):
+    """Sensor Module base class, all sensors to be integrated with the system must subclass this"""
+
     def __init__(self, name=None, data_collector=None, collection_interval=30):
         super(SensorModule, self).__init__()
         self.name = name
@@ -39,7 +41,7 @@ class SensorModule(Thread):
         """
         Run sensor module main loop, which will continue until the station's main thread is stopped.
         """
-        print('Setting up sensor: '+self.name)
+        print('Setting up sensor: ' + self.name)
         self.setup()
         while self.running:
             time.sleep(self.collection_interval)
@@ -82,14 +84,15 @@ class PlayWeatherStation:
 
     def register(self, sensor_class, name=""):
         if not name:
-            name = "sensor"+str(len(self.registered_sensors)) # TODO make sure these names are not possible to be repeated
+            name = "sensor" + str(
+                len(self.registered_sensors))  # TODO make sure these names are not possible to be repeated
 
         try:
             self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval=2)
         except Exception as e:
             print("Error while trying to register module '{}':\n {}".format(name, e.message))
 
-    def initialize(self,config, gps_on=True):
+    def initialize(self, config, gps_on=True):
         # set configuration parameters
         self.config = config
         self.id = config['PLAYWEATHER_STATION']['id']
@@ -99,7 +102,7 @@ class PlayWeatherStation:
             try:
                 sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
             except Exception as e:
-                print(sensor_name+" found in config was not installed? e:"+ e.message)
+                print(sensor_name + " found in config was not installed? e:" + e.message)
 
         # initialize database
         self.init_db()
@@ -115,7 +118,6 @@ class PlayWeatherStation:
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
             print("=> sensor: '" + sensor_name + "' is running.")
-
 
         while True:
             time.sleep(self.delivery_interval)
@@ -145,8 +147,10 @@ class PlayWeatherStation:
                 "readings": self.data_collector,
             }
 
-            # self.persist_data(data)
-            self.deliver_data(data)
+            is_delivered = self.deliver_data(data)
+            self.persist_data(data, is_delivered)
+
+            self.send_undelivered_data()
 
             #  print("*********\n")
             #  for key, value in self.data_collector.iteritems():
@@ -185,9 +189,14 @@ class PlayWeatherStation:
 
         if response.status_code == 200:
             print(response.text)
+            return True
         else:
             print(response)
+            return False
 
+    #################################################################################
+    # Database and local Storage                                                    #
+    #################################################################################
     def init_db(self):
         if not os.path.exists(self.db_filename):
             with sqlite3.connect(self.db_filename) as conn:
@@ -199,9 +208,7 @@ class PlayWeatherStation:
         else:
             print("Database already exists")
 
-    def persist_data(self, data):
-        # Store data to local database
-        # returns True if data is stored successfully, False otherwise
+    def persist_data(self, data, is_delivered=False):
         if os.path.exists(self.db_filename):
             print("Persisting data")
             with sqlite3.connect(self.db_filename) as conn:
@@ -209,15 +216,19 @@ class PlayWeatherStation:
                     """
                     INSERT INTO gps (latitude, longitude,altitude, reading_date)
                     VALUES (?,?,?,?) 
-                    """, (data['location']['latitude'], data['location']['longitude'],data['location']['altitude'], datetime.strptime(data['location']['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                    """, (data['location']['latitude'], data['location']['longitude'], data['location']['altitude'],
+                          datetime.strptime(data['location']['date'], '%Y-%m-%dT%H:%M:%SZ'))
                 )
                 for sensor, readings in data['readings'].items():
                     for reading in readings:
                         conn.execute(
                             """
-                            INSERT INTO readings (sensor, value, reading_date)
-                            VALUES (?,?,?) 
-                            """, (sensor, reading['value'], datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                            INSERT INTO readings (sensor, value, reading_date, is_delivered)
+                            VALUES (?,?,?,?) 
+                            """, (sensor,
+                                  reading['value'],
+                                  datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'),
+                                  is_delivered)
                         )
                 conn.commit()
             print("Done: Data persisted")
@@ -225,3 +236,25 @@ class PlayWeatherStation:
         else:
             print("Database still not created. Run init_db() before being able to persiste data")
             return False
+
+    def send_undelivered_data(self):
+        if os.path.exists(self.db_filename):
+            with sqlite3.connect(self.db_filename) as conn:
+                c = conn.cursor()
+                c.execute(" SELECT (sensor, value, reading_date) FROM readings  WHERE is_delivered=FALSE")
+                result = c.fetchall()
+
+            if not result:
+                return True
+
+            data = {
+                "station_id": self.id,
+                "location": {  # TODO be able to send data without location
+                    "latitude": 42,
+                    "longitude": 42,
+                    "altitude": 42
+                },
+                "readings": {row[0]: {'value': row[1], 'date': row[2]} for row in result},
+            }
+            return True if self.deliver_data(data) else False
+

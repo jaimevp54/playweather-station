@@ -35,10 +35,8 @@ def get_gps_readings():
     db_filename = "../pw.sqlite3"
     with sqlite3.connect(db_filename) as conn:
         c = conn.cursor()
-        c.execute("SELECT * FROM readings Limit 10")
-
+        c.execute("SELECT * FROM gps Limit 10")
         result = {'data': c.fetchall()}
-
     return jsonify(result)
 
 
