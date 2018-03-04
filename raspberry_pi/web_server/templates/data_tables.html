@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.16/b-1.5.1/b-html5-1.5.1/b-print-1.5.1/r-2.2.1/sc-1.4.4/datatables.min.css"/>
+{% endblock %}
+
+{% block content %}
+    <div class="animated fadeIn">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Sensores</strong>
+                    </div>
+                    <div class="card-body">
+                        <table id="readings-table" class="display table table-bordered table-hover" cellspacing="0"
+                               width="100%">
+                            <thead>
+                            <tr>
+                                <th>Sensor</th>
+                                <th>Value</th>
+                                <th>Reading_date</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>Sensor</th>
+                                <th>Value</th>
+                                <th>Reading_date</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>GPS</strong>
+                    </div>
+                    <div class="card-body">
+                        <table id="gps-table" class="display table table-bordered table-hover" cellspacing="0"
+                               width="100%">
+                            <thead>
+                            <tr>
+                                <th>Latitud</th>
+                                <th>Longitud</th>
+                                <th>Altitud</th>
+                                <th>Fecha</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>Latitud</th>
+                                <th>Longitud</th>
+                                <th>Altitud</th>
+                                <th>Fecha</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.16/b-1.5.1/b-html5-1.5.1/b-print-1.5.1/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#readings-table').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{{ url_for('get_sensor_readings') }}"
+            });
+
+            $('#gps-table').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{{ url_for('get_gps_readings') }}"
+            });
+        });
+    </script>
+{% endblock %}
