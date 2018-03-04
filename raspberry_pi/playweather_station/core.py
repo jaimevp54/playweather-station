@@ -128,6 +128,7 @@ class PlayWeatherStation:
                     "latitude": self.gps.latDeg if self.gps.latDeg else "0",
                     "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
                     "altitude": self.gps.altitude if self.gps.altitude else "0",
+                    'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
                 }
 
             else:
@@ -135,6 +136,7 @@ class PlayWeatherStation:
                     "latitude": 0,
                     "longitude": 0,
                     "altitude": 0,
+                    'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
                 }
 
             data = {
@@ -195,12 +197,20 @@ class PlayWeatherStation:
                 conn.executescript(schema)
                 print('Schema created\n\n')
         else:
-            print("Database already created")
+            print("Database already exists")
 
     def persist_data(self, data):
+        # Store data to local database
+        # returns True if data is stored successfully, False otherwise
         if os.path.exists(self.db_filename):
             print("Persisting data")
             with sqlite3.connect(self.db_filename) as conn:
+                conn.execute(
+                    """
+                    INSERT INTO gps (latitude, longitude,altitude, reading_date)
+                    VALUES (?,?,?,?) 
+                    """, (data['location']['latitude'], data['location']['longitude'],data['location']['altitude'], datetime.strptime(data['location']['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                )
                 for sensor, readings in data['readings'].items():
                     for reading in readings:
                         conn.execute(
@@ -211,5 +221,7 @@ class PlayWeatherStation:
                         )
                 conn.commit()
             print("Done: Data persisted")
+            return True
         else:
             print("Database still not created. Run init_db() before being able to persiste data")
+            return False
