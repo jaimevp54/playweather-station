@@ -130,6 +130,7 @@ class CCS811(SensorModule):
             if self.data_available():
                 self.read_logorithm_results()
                 self.collect(self.CO2)
+                print self.CO2
 
             elif self.check_for_error():
                 self.print_error()
