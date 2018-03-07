@@ -28,7 +28,7 @@ class Wind(SensorModule):
         self.setup_vars['speed'] = 0
 
         # Pin del GPIO para conectar el sensor de velocidad de viento
-        self.setup_vars['PIN'] = 27
+        self.setup_vars['PIN'] = 23
 
         # Setup de los pines E/S
         GPIO.setmode(GPIO.BCM)
@@ -68,9 +68,6 @@ class Wind(SensorModule):
 
         vane_level= self.ReadChannel(self.setup_vars['vane_channel'])
         vane_volts= self.ConvertVolts(vane_level, 2)
-
-        uv_level = self.ReadChannel(self.setup_vars['uv_channel'])
-        uv_volts = self.ConvertVolts(uv_level, 2)
 
         if vane_volts >= 3.76 and vane_volts <= 3.79:
             self.setup_vars['vane_grados']= 0

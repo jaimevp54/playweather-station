@@ -14,7 +14,7 @@ class Rain(SensorModule):
 
     def setup(self):
         self.setup_vars['calibration']= 0.2794
-        self.setup_vars['PIN']= 17
+        self.setup_vars['PIN']= 24
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.setup_vars['PIN'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
