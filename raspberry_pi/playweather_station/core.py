@@ -7,6 +7,8 @@ import requests
 import os
 import sqlite3
 import json
+from pprint import pprint
+import json
 
 
 class SensorModule(Thread):
@@ -74,7 +76,7 @@ class PlayWeatherStation:
         self.id = "not-set"
         self.registered_sensors = {}
         self.data_collector = {}
-        self.delivery_interval = 30
+        self.delivery_interval = 10
         self.threads = {}
         self.running = False
         self.delivery_url = 'https://playweather-pucmm.herokuapp.com'  # TODO turn this into a constant
@@ -118,39 +120,30 @@ class PlayWeatherStation:
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
             print("=> sensor: '" + sensor_name + "' is running.")
+        pprint("Running with the following configs:" )
+
+        for section in self.config.sections():
+            print(section + ": ")
+
+            print(dict(self.config.items(section)))
 
         while True:
+            print(str(self.delivery_interval)+ "????")
+            
             time.sleep(self.delivery_interval)
-            # self.gps.read()
-
-            location = {}
-            # if self.gps.fix !=0:
-            if False:
-                location = {
-                    "latitude": self.gps.latDeg if self.gps.latDeg else "0",
-                    "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
-                    "altitude": self.gps.altitude if self.gps.altitude else "0",
-                    'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                }
-
-            else:
-                location = {
-                    "latitude": 0,
-                    "longitude": 0,
-                    "altitude": 0,
-                    'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                }
-
             data = {
                 "station_id": self.id,
-                "location": location,
+                "location": self.get_current_location(),
                 "readings": self.data_collector,
             }
 
-            is_delivered = self.deliver_data(data)
-            self.persist_data(data, is_delivered)
+            # is_delivered = self.deliver_data(data)
+            # self.persist_data(data, is_delivered)
 
             self.send_undelivered_data()
+
+            for sensor in self.data_collector:
+                self.data_collector[sensor] = []
 
             #  print("*********\n")
             #  for key, value in self.data_collector.iteritems():
@@ -184,17 +177,39 @@ class PlayWeatherStation:
             data=json.dumps(data)
         )
 
-        for sensor in self.data_collector:
-            self.data_collector[sensor] = []
-
-        if response.status_code == 200:
+        if False and response.status_code == 200:
             print(response.text)
             return True
         else:
             print(response)
             return False
 
-    #################################################################################
+    def get_current_location(self):
+        # self.gps.read()
+
+        location = {}
+        #if self.gps.fix !=0:
+        if False:
+            location = {
+                "latitude": self.gps.latDeg if self.gps.latDeg else "0",
+                "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
+                "altitude": self.gps.altitude if self.gps.altitude else "0",
+                'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            }
+
+        else:
+            print("reading something")
+            location = {
+                "latitude": 0,
+                "longitude": 0,
+                "altitude": 0,
+                'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            }
+
+        return location
+
+
+        #################################################################################
     # Database and local Storage                                                    #
     #################################################################################
     def init_db(self):
@@ -212,12 +227,13 @@ class PlayWeatherStation:
         if os.path.exists(self.db_filename):
             print("Persisting data")
             with sqlite3.connect(self.db_filename) as conn:
+                print("persist reading")
                 conn.execute(
                     """
-                    INSERT INTO gps (latitude, longitude,altitude, reading_date)
-                    VALUES (?,?,?,?) 
+                    INSERT INTO gps (latitude, longitude,altitude, reading_date,is_delivered)
+                    VALUES (?,?,?,?,?) 
                     """, (data['location']['latitude'], data['location']['longitude'], data['location']['altitude'],
-                          datetime.strptime(data['location']['date'], '%Y-%m-%dT%H:%M:%SZ'))
+                          datetime.strptime(data['location']['date'], '%Y-%m-%dT%H:%M:%SZ'), is_delivered)
                 )
                 for sensor, readings in data['readings'].items():
                     for reading in readings:
@@ -230,6 +246,7 @@ class PlayWeatherStation:
                                   datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'),
                                   is_delivered)
                         )
+                        print("YEY reading")
                 conn.commit()
             print("Done: Data persisted")
             return True
@@ -241,7 +258,7 @@ class PlayWeatherStation:
         if os.path.exists(self.db_filename):
             with sqlite3.connect(self.db_filename) as conn:
                 c = conn.cursor()
-                c.execute(" SELECT (sensor, value, reading_date) FROM readings  WHERE is_delivered=FALSE")
+                c.execute(" SELECT sensor, value, reading_date FROM readings  WHERE is_delivered=0")
                 result = c.fetchall()
 
             if not result:
@@ -254,7 +271,8 @@ class PlayWeatherStation:
                     "longitude": 42,
                     "altitude": 42
                 },
-                "readings": {row[0]: {'value': row[1], 'date': row[2]} for row in result},
+                "readings": {row[0]: {'value': row[1], 'date': row[2]} for row in result },
             }
+            print("trying to deliver data")
             return True if self.deliver_data(data) else False
 

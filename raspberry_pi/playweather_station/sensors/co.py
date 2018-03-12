@@ -1,6 +1,6 @@
 import sys, time
 
-##from playweather_station.core import SensorModule
+from playweather_station.core import SensorModule
 
 from playweather_station.sensors.helpers.mq import MQ
 

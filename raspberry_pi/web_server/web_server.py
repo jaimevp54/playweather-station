@@ -22,20 +22,20 @@ def data_tables():
 
 @app.route('/data_tables/sensor_readings')
 def get_sensor_readings():
-    db_filename = "../pw.sqlite3"
+    db_filename = "pw.sqlite3"
     with sqlite3.connect(db_filename) as conn:
         c = conn.cursor()
-        c.execute("SELECT * FROM readings Limit 10")
+        c.execute("SELECT * FROM readings ORDER BY reading_date DESC Limit 10")
         result = {'data': c.fetchall()}
     return jsonify(result)
 
 
 @app.route('/data_tables/gps_readings')
 def get_gps_readings():
-    db_filename = "../pw.sqlite3"
+    db_filename = "pw.sqlite3"
     with sqlite3.connect(db_filename) as conn:
         c = conn.cursor()
-        c.execute("SELECT * FROM gps Limit 10")
+        c.execute("SELECT * FROM gps ORDER BY reading_date DESC Limit 10")
         result = {'data': c.fetchall()}
     return jsonify(result)
 
@@ -116,4 +116,4 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
     app.config['PW_CONFIG'] = config
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

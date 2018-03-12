@@ -35,27 +35,29 @@ pw.delivery_port = ""
 # Register module classes in here
 # --> pw.register(module.Class)
 
-# pw.register(co.CO, 'co')
-pw.register(lluvia.Rain, 'pluvial')
+pw.register(co.CO, 'co')
+# pw.register(lluvia.Rain, 'pluvial')
 # pw.register(DHT22.DHT22, 'DHT22')
-pw.register(viento.Wind, 'viento')
+# pw.register(viento.Wind, 'viento')
 # pw.register(ccs811.CCS811, 'co2')
 # pw.register(UV.UV, 'violeta')
 
 
 # for sensor in pw.registered_sensors:
 #     if sensor.upper() not in config:
+#         config[sensor.upper()] = {}
 #         config[sensor.upper()]["id"] = sensor
     
 # print("-> writing config file")
 # config.write('config.ini')
     
-try:
-    pw.initialize(config)
-except Exception as e:
-    print('An error has occurred: ', e)
-    pw.stop()
-finally:
-    pw.stop()
+# try:
+pw.initialize(config)
+# except Exception as e:
+#     print('An error has occurred: ', e)
+#     print( e.message)
+#     pw.stop()
+# finally:
+pw.stop()
 
 

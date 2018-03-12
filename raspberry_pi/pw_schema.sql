@@ -5,7 +5,7 @@ create table readings (
     sensor  text,
     value text,
     reading_date  date,
-    is_delivered boolean NOT NULL DEFAULT TRUE ,
+    is_delivered boolean NOT NULL DEFAULT FALSE ,
     PRIMARY KEY (sensor, reading_date)
 );
 
@@ -14,6 +14,6 @@ create table gps (
     longitude real,
     altitude real,
     reading_date  date,
-    is_delivered boolean NOT NULL DEFAULT TRUE ,
+    is_delivered boolean NOT NULL DEFAULT FALSE ,
     PRIMARY KEY (reading_date)
 );
