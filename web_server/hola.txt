@@ -1,0 +1,7 @@
+[2018-03-12 16:38:33 +0000] [2148] [INFO] Starting gunicorn 19.7.1
+[2018-03-12 16:38:33 +0000] [2148] [INFO] Listening at: http://127.0.0.1:8000 (2148)
+[2018-03-12 16:38:33 +0000] [2148] [INFO] Using worker: sync
+[2018-03-12 16:38:33 +0000] [2153] [INFO] Booting worker with pid: 2153
+[2018-03-12 16:39:21 +0000] [2148] [INFO] Handling signal: int
+[2018-03-12 16:39:21 +0000] [2153] [INFO] Worker exiting (pid: 2153)
+[2018-03-12 16:39:21 +0000] [2148] [INFO] Shutting down: Master
