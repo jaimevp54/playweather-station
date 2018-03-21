@@ -1,18 +1,23 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for,current_app
 import subprocess
 import configparser
+import traceback
 
 app = Flask(__name__)
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == "POST":
-        update_config(request.form)
-    sensor_list = [sensor for sensor in app.config["PW_CONFIG"] if
-                   sensor != "PLAYWEATHER_STATION" and sensor != "DEFAULT"]
-    return render_template('settings.html', sensors=sensor_list, config=app.config['PW_CONFIG'])
+    try:
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        if request.method == "POST":
+            update_config(request.form,config)
+
+        sensor_list = [sensor for sensor in config if sensor != "PLAYWEATHER_STATION" and sensor != "DEFAULT"]
+        return render_template('settings.html', sensors=sensor_list, config=config)
+    except Exception:
+        return traceback.print_exc()
 
 
 @app.route('/data_tables')
@@ -71,7 +76,7 @@ def stop_station():
     return redirect(url_for('index'))
 
 
-def update_config(form):
+def update_config(form,config):
     form = form.to_dict()
     with open('config.ini', 'w') as configfile:
         config["PLAYWEATHER_STATION"]["id"] = form.pop('station-id')
@@ -89,10 +94,6 @@ def update_config(form):
 def get_pw_config_value(key):
     return app.config['PW_CONFIG']['DEFAULT'][key]
 
-
-def init(pw_config):
-    app.config['PW_CONFIG'] = pw_config
-    app.run(debug=True)
 
 
 def default_config():
@@ -113,7 +114,4 @@ def validate(config):
 
 
 if __name__ == '__main__':
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    app.config['PW_CONFIG'] = config
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=8080)
