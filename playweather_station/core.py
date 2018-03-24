@@ -137,8 +137,8 @@ class PlayWeatherStation:
                 "readings": self.data_collector,
             }
 
-            # is_delivered = self.deliver_data(data)
-            # self.persist_data(data, is_delivered)
+            is_delivered = False and self.deliver_data(data)
+            self.persist_data(data, is_delivered)
 
             self.send_undelivered_data()
 
@@ -200,9 +200,9 @@ class PlayWeatherStation:
         else:
             print("reading something")
             location = {
-                "latitude": 0,
-                "longitude": 0,
-                "altitude": 0,
+                "latitude": datetime.now().hour,
+                "longitude": datetime.now().minute,
+                "altitude": datetime.now().second,
                 'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
             }
 

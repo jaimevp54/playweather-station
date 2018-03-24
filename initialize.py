@@ -3,6 +3,7 @@ from playweather_station.core import PlayWeatherStation
 from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811
 
 from web_server import web_server
+import traceback
 import configparser
 
 def default_config():
@@ -35,7 +36,7 @@ pw.delivery_port = ""
 # Register module classes in here
 # --> pw.register(module.Class)
 
-pw.register(co.CO, 'co')
+# pw.register(co.CO, 'co')
 # pw.register(lluvia.Rain, 'pluvial')
 # pw.register(DHT22.DHT22, 'DHT22')
 # pw.register(viento.Wind, 'viento')
@@ -51,13 +52,12 @@ pw.register(co.CO, 'co')
 # print("-> writing config file")
 # config.write('config.ini')
     
-# try:
-pw.initialize(config)
-# except Exception as e:
-#     print('An error has occurred: ', e)
-#     print( e.message)
-#     pw.stop()
-# finally:
-pw.stop()
+try:
+    pw.initialize(config)
+except Exception as e:
+    print('An error has occurred: ', e)
+    pw.stop()
+finally:
+    pw.stop()
 
 
