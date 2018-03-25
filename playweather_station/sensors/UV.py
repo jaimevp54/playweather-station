@@ -1,19 +1,16 @@
-import Rpi.GPIO as GPIO
-import spidev
-import math
-import time, os, requests
 from playweather_station.core import SensorModule
 
-spi = spidev.SpiDev()
-spi.open(0, 0)
 
 
 class UV(SensorModule):
-    UV_channel = 2
-    delay = 3
+    # UV_channel = 2
 
-    def run(self):
-        time.sleep(delay)
+    def setup(self):
+        import spidev
+        self.setup_vars['spi'] = spidev.SpiDev()
+        self.setup_vars['spi'].open(0, 0)
+
+    def capture_data(self):
         uv_level = ReadChannel(2)
         uv_volts = ConvertVolts(uv_level, 2)
         self.collect(uv_volts / 0 / 1)

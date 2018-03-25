@@ -123,7 +123,7 @@ class PlayWeatherStation:
                 name, self.data_collector, collection_interval=2, fake=self.fake
             )
         except Exception as e:
-            logging.warning("Error while trying to register module '{}':\n {}".format(name, e.message))
+            logging.exception("Error while trying to register module")
 
     def initialize(self, config):
         if self.fake:
@@ -137,7 +137,7 @@ class PlayWeatherStation:
             try:
                 sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
             except Exception as e:
-                logging.warning(sensor_name + " found in config was not installed? e:" + e.message)
+                logging.exception(sensor_name + " found in config was not installed?")
 
         # initialize database
         self.init_db()
