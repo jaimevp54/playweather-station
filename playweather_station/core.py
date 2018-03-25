@@ -1,14 +1,15 @@
 from threading import Thread
 import time
 from datetime import datetime
-from pprint import pprint
 import requests
 import os
 import sqlite3
 import json
-from pprint import pprint
-import json
 import random
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s]  %(message)s', )
+
 
 class SensorModule(Thread):
     """Sensor Module base class, all sensors to be integrated with the system must subclass this"""
@@ -44,12 +45,12 @@ class SensorModule(Thread):
         Run sensor module main loop, which will continue until the station's main thread is stopped.
         """
         if self.fake:
-            print('Starting emulation: ' + self.name)
+            logging.info('Starting sensor emulation: ' + self.name)
             while self.running:
                 time.sleep(self.collection_interval)
                 self.collect(random.randrange(10,50))
         else:
-            print('Setting up sensor: ' + self.name)
+            logging.info('Setting up sensor: ' + self.name)
             self.setup()
             while self.running:
                 time.sleep(self.collection_interval)
@@ -108,9 +109,11 @@ class PlayWeatherStation:
                 name, self.data_collector, collection_interval=2, fake=self.fake
             )
         except Exception as e:
-            print("Error while trying to register module '{}':\n {}".format(name, e.message))
+            logging.warning("Error while trying to register module '{}':\n {}".format(name, e.message))
 
-    def initialize(self, config, gps_on=True):
+    def initialize(self, config):
+        if self.fake:
+            logging.warning('Running on "fake" mode, all data collected from sensor modules will be randomly generated')
         # set configuration parameters
         self.config = config
         self.id = config['PLAYWEATHER_STATION']['id']
@@ -120,34 +123,39 @@ class PlayWeatherStation:
             try:
                 sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
             except Exception as e:
-                print(sensor_name + " found in config was not installed? e:" + e.message)
+                logging.warning(sensor_name + " found in config was not installed? e:" + e.message)
 
         # initialize database
         self.init_db()
 
         if self.gps_on:
-            from playweather_station.sensors.gps import GPS
-            print("Initializing GPS... ")
-            self.gps = GPS()
+            logging.info("Initializing GPS")
+            try:
+                from playweather_station.sensors.gps import GPS
+                self.gps = GPS()
+                logging.info("GPS ready")
+            except Exception :
+                logging.exception("GPS Initialization failed")
 
-        print("Initializing sensors... ")
+        logging.info("Initializing sensors... ")
         self.running = True
         self.threads = {}
 
         for sensor_name, sensor in self.registered_sensors.iteritems():
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
-            print("=> sensor: '" + sensor_name + "' is running.")
-        pprint("Running with the following configs:" )
+            logging.info("=> sensor: '" + sensor_name + "' initialized")
 
+        logging.info("Sensors Ready")
+
+        logging.debug("Running with the following configs:")
         for section in self.config.sections():
-            print(section + ": ")
+            logging.debug("  "+section + ":")
+            for key,value in self.config.items(section):
+                logging.debug("      {}: {}".format(key,value))
 
-            print(dict(self.config.items(section)))
-
+        logging.info("Sensors Ready. Collecting data...")
         while True:
-            print(str(self.delivery_interval)+ "????")
-
             time.sleep(self.delivery_interval)
             data = {
                 "station_id": self.id,
@@ -155,6 +163,9 @@ class PlayWeatherStation:
                 "readings": self.data_collector,
             }
 
+            logging.info("Handling data collected thus far")
+            logging.debug("Collected data:")
+            logging.debug(json.dumps(data))
             delivery_success= False
             if self.should_deliver_data:
                 delivery_success = self.deliver_data(data)
@@ -174,17 +185,16 @@ class PlayWeatherStation:
             #  print("*********\n\n")
 
     def stop(self):
-        print("Wating for all systems to shutdown")
+        logging.info("Wating for all systems to shutdown")
         self.running = False
         for thread in self.threads.values():
             thread.stop()
             thread.join()
 
-        print("Shutdown successful")
+        logging.info("Shutdown successful")
 
     def deliver_data(self, data):
-        print("\n\n\nsending:")
-        print(json.dumps(data))
+        logging.info("Sending data")
         # print("\n to:",
         #       'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
         #           url=self.delivery_url,
@@ -218,7 +228,6 @@ class PlayWeatherStation:
             }
 
         else:
-            print("reading something")
             location = {
                 "latitude": datetime.now().hour,
                 "longitude": datetime.now().minute,
@@ -233,15 +242,16 @@ class PlayWeatherStation:
     # Database and local Storage                                                    #
     #################################################################################
     def init_db(self):
+        logging.info("Initializing database")
         if not os.path.exists(self.db_filename):
             with sqlite3.connect(self.db_filename) as conn:
-                print('Creating schema')
+                logging.info('Creating schema')
                 with open(self.schema_filename, 'rt') as f:
                     schema = f.read()
                 conn.executescript(schema)
-                print('Schema created\n\n')
+                logging.info('Schema created')
         else:
-            print("Database already exists")
+            logging.info("Database already exists")
 
     def persist_data(self, data, is_delivered=False):
         if os.path.exists(self.db_filename):
@@ -266,15 +276,15 @@ class PlayWeatherStation:
                                   datetime.strptime(reading['date'], '%Y-%m-%dT%H:%M:%SZ'),
                                   is_delivered)
                         )
-                        print("YEY reading")
                 conn.commit()
-            print("Done: Data persisted")
+            logging.info("Data persisted")
             return True
         else:
-            print("Database still not created. Run init_db() before being able to persiste data")
+            logging.critical("Database still not created. Run init_db() before being able to persiste data")
             return False
 
     def send_undelivered_data(self):
+        logging.info("Sending undelivered data")
         if os.path.exists(self.db_filename):
             with sqlite3.connect(self.db_filename) as conn:
                 c = conn.cursor()
@@ -293,6 +303,5 @@ class PlayWeatherStation:
                 },
                 "readings": {row[0]: {'value': row[1], 'date': row[2]} for row in result },
             }
-            print("trying to deliver data")
             return True if self.deliver_data(data) else False
 

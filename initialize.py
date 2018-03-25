@@ -38,7 +38,7 @@ pw.gps_on = False
 # Register module classes in here
 # --> pw.register(module.Class)
 
-# pw.register(co.CO, 'co')
+pw.register(co.CO, 'co')
 # pw.register(lluvia.Rain, 'pluvial')
 # pw.register(DHT22.DHT22, 'DHT22')
 # pw.register(viento.Wind, 'viento')
