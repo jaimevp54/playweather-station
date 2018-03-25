@@ -173,8 +173,11 @@ class PlayWeatherStation:
             data = {
                 "station_id": self.id,
                 "location": self.get_current_location(),
-                "readings": self.data_collector,
+                "readings": self.data_collector.copy(),
             }
+
+            for sensor in self.data_collector:
+                self.data_collector[sensor] = []
 
             logging.info("Handling data collected thus far")
             logging.debug("Collected data:")
@@ -188,15 +191,7 @@ class PlayWeatherStation:
             if self.should_deliver_data:
                 self.send_undelivered_data()
 
-            for sensor in self.data_collector:
-                self.data_collector[sensor] = []
 
-            #  print("*********\n")
-            #  for key, value in self.data_collector.iteritems():
-            #      print("->", key, value)
-            #  for sensor in self.data_collector:
-            #      self.data_collector[sensor] = []
-            #  print("*********\n\n")
 
     def stop(self):
         logging.info("Wating for all systems to shutdown")
@@ -302,7 +297,7 @@ class PlayWeatherStation:
                 c = conn.cursor()
                 c.execute(" SELECT sensor, value, reading_date FROM readings  WHERE is_delivered=0")
                 result = c.fetchall()
-                logging.debug("Found {} undelivered rows on the database".format(len(result)))
+                logging.debug("Found {} undelivered readings on the database".format(len(result)))
 
             if not result:
                 return True
@@ -315,7 +310,6 @@ class PlayWeatherStation:
 
             if self.deliver_data(data):
                 c.execute(" UPDATE readings SET is_delivered=1 WHERE is_delivered=0")
-                # c.execute(" UPDATE gps SET is_delivered=1 WHERE is_delivered=0")
                 conn.commit()
                 logging.debug("Updated database")
                 return True
