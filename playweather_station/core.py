@@ -120,7 +120,7 @@ class PlayWeatherStation:
 
         try:
             self.registered_sensors[name] = sensor_class(
-                name, self.data_collector, collection_interval=2, fake=self.fake
+                name, self.data_collector, fake=self.fake
             )
         except Exception as e:
             logging.exception("Error while trying to register module")
@@ -134,10 +134,10 @@ class PlayWeatherStation:
         self.delivery_interval = int(config['PLAYWEATHER_STATION']['delivery_interval'])
 
         for sensor_name, sensor in self.registered_sensors.iteritems():
-            try:
+            if sensor_name.upper() not in config.sections():
+                logging.warning(sensor_name + " not found in config but it was registered")
+            else:
                 sensor.collection_interval = int(config[sensor_name.upper()]['collection_interval'])
-            except Exception as e:
-                logging.exception(sensor_name + " found in config was not installed?")
 
         # initialize database
         self.init_db()
