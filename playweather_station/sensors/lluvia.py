@@ -1,7 +1,5 @@
 #!/usr/bin/python2
-import RPi.GPIO as GPIO
 import time
-import requests
 
 from playweather_station.core import SensorModule
 
@@ -13,6 +11,8 @@ class Rain(SensorModule):
         rain = rain + CALIBRATION
 
     def setup(self):
+        import RPi.GPIO as GPIO
+
         self.setup_vars['calibration']= 0.2794
         self.setup_vars['PIN']= 24
 

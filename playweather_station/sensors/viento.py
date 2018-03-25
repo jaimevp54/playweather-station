@@ -1,10 +1,4 @@
 #!/usr/bin/python
-import RPi.GPIO as GPIO
-import spidev
-import time
-import os
-import requests
-
 from playweather_station.core import SensorModule
 
 
@@ -22,6 +16,8 @@ class Wind(SensorModule):
         return volts
 
     def setup(self):
+        import spidev
+        import RPi.GPIO as GPIO
         # Cada vez que cierre el contacto equivale a 2.4 Km/h
         self.setup_vars['factor_velocidad'] = 2.4
         self.setup_vars['vane_grados'] = 0

@@ -8,7 +8,6 @@ import time
 from playweather_station.sensors.helpers import pigpio
 
 
-
 class sensor:
     """
     A class to read relative humidity and temperature from the

@@ -1,5 +1,4 @@
 from threading import Thread
-from playweather_station.sensors.gps import GPS
 import time
 from datetime import datetime
 from pprint import pprint
@@ -9,18 +8,19 @@ import sqlite3
 import json
 from pprint import pprint
 import json
-
+import random
 
 class SensorModule(Thread):
     """Sensor Module base class, all sensors to be integrated with the system must subclass this"""
 
-    def __init__(self, name=None, data_collector=None, collection_interval=30):
+    def __init__(self, name=None, data_collector=None, collection_interval=30, fake=False):
         super(SensorModule, self).__init__()
         self.name = name
         self.data_collector = data_collector
         self.collection_interval = int(collection_interval)
         self.running = False
         self.setup_vars = {}
+        self.fake = fake
 
     def start(self):
         self.running = True
@@ -43,14 +43,20 @@ class SensorModule(Thread):
         """
         Run sensor module main loop, which will continue until the station's main thread is stopped.
         """
-        print('Setting up sensor: ' + self.name)
-        self.setup()
-        while self.running:
-            time.sleep(self.collection_interval)
-            captured_data = self.capture_single_data()
-            self.collect(captured_data)
+        if self.fake:
+            print('Starting emulation: ' + self.name)
+            while self.running:
+                time.sleep(self.collection_interval)
+                self.collect(random.randrange(10,50))
+        else:
+            print('Setting up sensor: ' + self.name)
+            self.setup()
+            while self.running:
+                time.sleep(self.collection_interval)
+                captured_data = self.capture_single_data()
+                self.collect(captured_data)
 
-        self.cleanup()
+            self.cleanup()
 
     def collect(self, value, sub_name=None):
         if self.name and sub_name:
@@ -72,7 +78,7 @@ class SensorModule(Thread):
 
 
 class PlayWeatherStation:
-    def __init__(self):
+    def __init__(self,fake=False):
         self.id = "not-set"
         self.registered_sensors = {}
         self.data_collector = {}
@@ -83,6 +89,14 @@ class PlayWeatherStation:
         self.delivery_port = '8000'  # TODO turn this into a constant
         self.db_filename = "pw.sqlite3"  # TODO turn this into a constant
         self.schema_filename = "pw_schema.sql"  # TODO turn this into a constant
+        self.fake = fake
+        self.should_deliver_data = True
+        self.should_persist_data = True
+        self.config = None
+        self.gps = None
+        self.gps_on = True
+
+
 
     def register(self, sensor_class, name=""):
         if not name:
@@ -90,7 +104,9 @@ class PlayWeatherStation:
                 len(self.registered_sensors))  # TODO make sure these names are not possible to be repeated
 
         try:
-            self.registered_sensors[name] = sensor_class(name, self.data_collector, collection_interval=2)
+            self.registered_sensors[name] = sensor_class(
+                name, self.data_collector, collection_interval=2, fake=self.fake
+            )
         except Exception as e:
             print("Error while trying to register module '{}':\n {}".format(name, e.message))
 
@@ -109,8 +125,10 @@ class PlayWeatherStation:
         # initialize database
         self.init_db()
 
-        print("Initializing GPS... ")
-        self.gps = GPS()
+        if self.gps_on:
+            from playweather_station.sensors.gps import GPS
+            print("Initializing GPS... ")
+            self.gps = GPS()
 
         print("Initializing sensors... ")
         self.running = True
@@ -129,7 +147,7 @@ class PlayWeatherStation:
 
         while True:
             print(str(self.delivery_interval)+ "????")
-            
+
             time.sleep(self.delivery_interval)
             data = {
                 "station_id": self.id,
@@ -137,10 +155,13 @@ class PlayWeatherStation:
                 "readings": self.data_collector,
             }
 
-            is_delivered = False and self.deliver_data(data)
-            self.persist_data(data, is_delivered)
-
-            self.send_undelivered_data()
+            delivery_success= False
+            if self.should_deliver_data:
+                delivery_success = self.deliver_data(data)
+            if self.should_persist_data:
+                self.persist_data(data, delivery_success)
+            if self.should_deliver_data:
+                self.send_undelivered_data()
 
             for sensor in self.data_collector:
                 self.data_collector[sensor] = []
@@ -185,11 +206,10 @@ class PlayWeatherStation:
             return False
 
     def get_current_location(self):
-        # self.gps.read()
+        if self.gps_on:
+            self.gps.read()
 
-        location = {}
-        #if self.gps.fix !=0:
-        if False:
+        if not self.fake and self.gps_on and self.gps.fix !=0:
             location = {
                 "latitude": self.gps.latDeg if self.gps.latDeg else "0",
                 "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
@@ -209,7 +229,7 @@ class PlayWeatherStation:
         return location
 
 
-        #################################################################################
+    #################################################################################
     # Database and local Storage                                                    #
     #################################################################################
     def init_db(self):

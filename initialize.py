@@ -28,10 +28,12 @@ config.read('config.ini')
 if not validate(config):
     config = default_config()
 
-pw = PlayWeatherStation()
-
+pw = PlayWeatherStation(fake=True)
 pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
 pw.delivery_port = ""
+pw.should_deliver_data = False
+pw.should_persist_data = False
+pw.gps_on = False
 
 # Register module classes in here
 # --> pw.register(module.Class)
