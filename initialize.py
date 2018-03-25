@@ -32,8 +32,8 @@ if not validate(config):
 pw = PlayWeatherStation(fake=True)
 pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
 pw.delivery_port = ""
-pw.should_deliver_data = False
-pw.should_persist_data = False
+pw.should_deliver_data = True
+pw.should_persist_data = True
 pw.gps_on = False
 
 # Register module classes in here

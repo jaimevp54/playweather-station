@@ -182,6 +182,7 @@ class PlayWeatherStation:
             delivery_success= False
             if self.should_deliver_data:
                 delivery_success = self.deliver_data(data)
+
             if self.should_persist_data:
                 self.persist_data(data, delivery_success)
             if self.should_deliver_data:
@@ -208,11 +209,9 @@ class PlayWeatherStation:
 
     def deliver_data(self, data):
         logging.info("Sending data")
-        # print("\n to:",
-        #       'http://{url}:{port}/api/sensor_readings_bundle/new/'.format(
-        #           url=self.delivery_url,
-        #           port=self.delivery_port
-        #       ))
+
+        # validate data format
+
 
         response = requests.post(
             '{url}/api/sensor_readings_bundle/new/'.format(
@@ -221,11 +220,13 @@ class PlayWeatherStation:
             data=json.dumps(data)
         )
 
-        if False and response.status_code == 200:
-            print(response.text)
+        if response.status_code == 200:
+            logging.info("Delivery successful")
+            logging.debug("Server responded with:\n" + response.text)
             return True
         else:
-            print(response)
+            logging.info("Delivery failed")
+            logging.debug("Server responded with:\n" + str(response))
             return False
 
     def get_current_location(self):
@@ -268,9 +269,7 @@ class PlayWeatherStation:
 
     def persist_data(self, data, is_delivered=False):
         if os.path.exists(self.db_filename):
-            print("Persisting data")
             with sqlite3.connect(self.db_filename) as conn:
-                print("persist reading")
                 conn.execute(
                     """
                     INSERT INTO gps (latitude, longitude,altitude, reading_date,is_delivered)
@@ -297,24 +296,29 @@ class PlayWeatherStation:
             return False
 
     def send_undelivered_data(self):
-        logging.info("Sending undelivered data")
+        logging.info("Checking for undelivered data")
         if os.path.exists(self.db_filename):
             with sqlite3.connect(self.db_filename) as conn:
                 c = conn.cursor()
                 c.execute(" SELECT sensor, value, reading_date FROM readings  WHERE is_delivered=0")
                 result = c.fetchall()
+                logging.debug("Found {} undelivered rows on the database".format(len(result)))
 
             if not result:
                 return True
 
             data = {
                 "station_id": self.id,
-                "location": {  # TODO be able to send data without location
-                    "latitude": 42,
-                    "longitude": 42,
-                    "altitude": 42
-                },
-                "readings": {row[0]: {'value': row[1], 'date': row[2]} for row in result },
+                "location": self.get_current_location(),
+                "readings": {row[0]: [{'value': row[1], 'date': datetime.strptime(row[2],'%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%SZ')}] for row in result },
             }
-            return True if self.deliver_data(data) else False
+
+            if self.deliver_data(data):
+                c.execute(" UPDATE readings SET is_delivered=1 WHERE is_delivered=0")
+                # c.execute(" UPDATE gps SET is_delivered=1 WHERE is_delivered=0")
+                conn.commit()
+                logging.debug("Updated database")
+                return True
+
+            return False
 
