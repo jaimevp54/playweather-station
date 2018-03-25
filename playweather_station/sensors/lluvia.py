@@ -7,8 +7,7 @@ from playweather_station.core import SensorModule
 class Rain(SensorModule):
 
     def cb(self,channel):
-        global rain
-        rain = rain + CALIBRATION
+        self.setup_vars['rain'] += self.setup_vars['calibration']
 
     def setup(self):
         import RPi.GPIO as GPIO

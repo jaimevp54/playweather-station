@@ -35,7 +35,7 @@ class SensorModule(Thread):
 
     def capture_single_data(self):
         """ 
-        Capture a single reading from the senser
+        Capture a single reading from the sensor
         MUST be implemented by each module.
         """
         raise NotImplementedError
@@ -44,13 +44,12 @@ class SensorModule(Thread):
         """
         Run sensor module main loop, which will continue until the station's main thread is stopped.
         """
+        logging.info("=> sensor: '" + self.name + "' initializing")
         if self.fake:
-            logging.info('Starting sensor emulation: ' + self.name)
             while self.running:
                 time.sleep(self.collection_interval)
                 self.collect(random.randrange(10,50))
         else:
-            logging.info('Setting up sensor: ' + self.name)
             self.setup()
             while self.running:
                 time.sleep(self.collection_interval)
@@ -144,7 +143,6 @@ class PlayWeatherStation:
         for sensor_name, sensor in self.registered_sensors.iteritems():
             self.threads[sensor_name] = sensor
             self.threads[sensor_name].start()
-            logging.info("=> sensor: '" + sensor_name + "' initialized")
 
         logging.info("Sensors Ready")
 
