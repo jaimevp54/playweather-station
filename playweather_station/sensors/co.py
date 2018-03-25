@@ -6,7 +6,7 @@ class CO(SensorModule):
         from playweather_station.sensors.helpers.mq import MQ
         self.setup_vars['MQ'] = MQ()
 
-    def capture_single_data(self):
+    def capture_data(self):
         mq = self.setup_vars['MQ']
         perc = mq.MQPercentage()
         print("CO: %g ppm" % (perc["CO"]))

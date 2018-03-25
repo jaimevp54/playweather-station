@@ -42,7 +42,7 @@ pw.gps_on = False
 pw.register(co.CO, 'co')
 pw.register(lluvia.Rain, 'pluvial')
 pw.register(DHT22.DHT22, 'DHT22')
-# pw.register(viento.Wind, 'viento')
+pw.register(viento.Wind, 'viento')
 # pw.register(ccs811.CCS811, 'co2')
 # pw.register(UV.UV, 'violeta')
 

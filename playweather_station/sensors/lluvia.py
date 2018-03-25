@@ -29,7 +29,7 @@ class Rain(SensorModule):
         GPIO.add_event_detect(self.setup_vars['PIN'], GPIO.RISING, callback=self.cb, bouncetime=100)
 
 
-    def capture_single_data(self):
+    def capture_data(self):
 
         localtime = time.localtime()
         timeString = time.strftime("%Y %m %d %H:%M:%S", localtime)

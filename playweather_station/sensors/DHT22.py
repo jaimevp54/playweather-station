@@ -245,32 +245,27 @@ class sensor:
 
 class DHT22(SensorModule):
 
-    def run(self):
+    def setup(self):
         # Intervalos de 3 segundos permiten que no se caiga o se quede en un loop infinito el DHT22
-        INTERVAL = 3
+        self.setup_vars['pi'] = pigpio.pi()
+        self.setup_vars['s'] = sensor(self.setup_vars['pi'], 22)
+        self.setup_vars['r'] = 0
 
-        pi = pigpio.pi()
+    def capture_data(self):
+        self.setup_vars['r'] += 1
+        self.setup_vars['s'].trigger()
 
-        s = sensor(pi, 22)
+        return {
+            'humedad': self.setup_vars['s'].humidity(),
+            'temperatura': self.setup_vars['s'].temperature(),
+        }
 
-        r = 0
+    def _fake_capture_data(self):
+        return {
+            'humedad': 42,
+            'temperatura': 24,
+        }
 
-        next_reading = time.time()
-
-        while self.running:
-            r += 1
-
-            s.trigger()
-
-            time.sleep(5)
-
-            print("Lectura #{}: Humedad: {}% Temperatura: {}*C ".format(r, s.humidity(), s.temperature()))
-            #self.collect(s.humidity(), sub_name='humedad')
-            #self.collect(s.temperature(), sub_name='temperatura')
-
-            next_reading += INTERVAL
-
-            #time.sleep(next_reading - time.time())
-
-        s.cancel()
-        pi.stop()  # !/usr/bin/env python
+    def cleanup(self):
+        self.setup_vars['s'].cancel()
+        self.setup_vars['pi'].stop()  # !/usr/bin/env python

@@ -57,11 +57,8 @@ class Wind(SensorModule):
         self.setup_vars['localTime']= 0
 
 
-    def capture_single_data(self):
+    def capture_data(self):
         # Leer el dato del sensor de direccion de viento
-
-        
-
         vane_level= self.ReadChannel(self.setup_vars['vane_channel'])
         vane_volts= self.ConvertVolts(vane_level, 2)
 
@@ -97,17 +94,13 @@ class Wind(SensorModule):
             self.setup_vars['vane_grados ']= 315
         elif vane_volts >= 3.37 and vane_volts <= 3.42:
             self.setup_vars['vane_grados ']= 337.5
-        # Imprimir los resultados
-        # print "--------------------------------------------"
-        # print("Valor de voltaje: {}V | Valor de direccion: {} grados".format(vane_volts,vane_grados))
-        # requests.get('http://192.168.0.5:8000/api/sensor_reading/new?sensor_name=dir_viento&data={}'.format(vane_grados))
-        # print("valor de voltaje: {}V | Indice de UV: {}".format(uv_volts, uv_volts/0.1))
 
-        #self.collect(vane_grados, sub_name='direccion')
-        #self.collect(self.setup_vars['speed'], sub_name='velocidad')
-        result= self.setup_vars['speed']
+        result= {
+            'direccion': vane_grados,
+            'velocidad': self.setup_vars['speed'],
+        }
         self.setup_vars['speed'] = 0
-        return result
+        return  result
 
             
 
@@ -134,3 +127,9 @@ class Wind(SensorModule):
         Para 315 grados, un voltaje de 4.33
         Para 337.5 grados, un voltaje de 3.43
         """
+
+    def _fake_capture_data(self):
+        return {
+            'velocidad': 42,
+            'direccion': 24,
+        }

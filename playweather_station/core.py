@@ -33,12 +33,18 @@ class SensorModule(Thread):
     def setup(self):
         pass
 
-    def capture_single_data(self):
+    def capture_data(self):
         """ 
         Capture a single reading from the sensor
         MUST be implemented by each module.
         """
         raise NotImplementedError
+
+    def _fake_capture_data(self):
+        """ 
+        Generate fake data for testing purposes
+        """
+        return random.randrange(10,50)
 
     def run(self):
         """
@@ -48,13 +54,22 @@ class SensorModule(Thread):
         if self.fake:
             while self.running:
                 time.sleep(self.collection_interval)
-                self.collect(random.randrange(10,50))
+                captured_data = self._fake_capture_data()
+                if isinstance(captured_data,dict):
+                    for sub_name, value in captured_data.items():
+                        self.collect(value,sub_name)
+                else:
+                    self.collect(captured_data)
         else:
             self.setup()
             while self.running:
                 time.sleep(self.collection_interval)
-                captured_data = self.capture_single_data()
-                self.collect(captured_data)
+                captured_data = self.capture_data()
+                if isinstance(captured_data,dict):
+                    for sub_name, value in captured_data.items():
+                        self.collect(value,sub_name)
+                else:
+                    self.collect(captured_data)
 
             self.cleanup()
 
