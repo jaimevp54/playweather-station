@@ -10,18 +10,20 @@ class UV(SensorModule):
         self.setup_vars['spi'] = spidev.SpiDev()
         self.setup_vars['spi'].open(0, 0)
 
-    def capture_data(self):
-        uv_level = ReadChannel(2)
-        uv_volts = ConvertVolts(uv_level, 2)
-        self.collect(uv_volts / 0 / 1)
-
-    def ReadChannel(channel):
-        adc = spi.xfer2([1, (8 + channel) << 4, 0])
+    def ReadChannel(self,channel):
+        adc = self.setup_vars['spi'].xfer2([1, (8 + channel) << 4, 0])
         data = ((adc[1] & 3) << 8) + adc[2]
         return data
 
-    def ConvertVolts(data, places):
+    def ConvertVolts(self,data, places):
         volts = (data * 5.0) / (float(1023))
         volts = round(volts, places)
         return volts
+
+    def capture_data(self):
+        uv_level = self.ReadChannel(2)
+        uv_volts = self.ConvertVolts(uv_level, 2)
+        return uv_volts / 0.1
+
+
 

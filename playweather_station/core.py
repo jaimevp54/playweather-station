@@ -33,6 +33,9 @@ class SensorModule(Thread):
     def setup(self):
         pass
 
+    def cleanup(self):
+        pass
+
     def capture_data(self):
         """ 
         Capture a single reading from the sensor

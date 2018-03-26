@@ -257,7 +257,7 @@ class DHT22(SensorModule):
 
         return {
             'humedad': self.setup_vars['s'].humidity(),
-            'temperatura': self.setup_vars['s'].temperature(),
+            'temp': self.setup_vars['s'].temperature(),
         }
 
     def _fake_capture_data(self):
