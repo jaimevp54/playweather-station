@@ -37,4 +37,5 @@ class Rain(SensorModule):
         return self.setup_vars['rain']
 
     def cleanup(self):
+        import RPi.GPIO as GPIO
         GPIO.cleanup()

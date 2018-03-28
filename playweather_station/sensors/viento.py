@@ -20,7 +20,7 @@ class Wind(SensorModule):
         import RPi.GPIO as GPIO
         # Cada vez que cierre el contacto equivale a 2.4 Km/h
         self.setup_vars['factor_velocidad'] = 2.4
-        self.setup_vars['vane_grados'] = 0
+        self.setup_vars['vane_grados'] = -1
         self.setup_vars['speed'] = 0
 
         # Pin del GPIO para conectar el sensor de velocidad de viento
@@ -61,7 +61,6 @@ class Wind(SensorModule):
         # Leer el dato del sensor de direccion de viento
         vane_level= self.ReadChannel(self.setup_vars['vane_channel'])
         vane_volts= self.ConvertVolts(vane_level, 2)
-
         if vane_volts >= 3.76 and vane_volts <= 3.79:
             self.setup_vars['vane_grados']= 0
         elif vane_volts >= 1.96 and vane_volts <= 2.00:
@@ -96,7 +95,7 @@ class Wind(SensorModule):
             self.setup_vars['vane_grados ']= 337.5
 
         result= {
-            'direccion': vane_grados,
+            'direccion': self.setup_vars['vane_grados'],
             'velocidad': self.setup_vars['speed'],
         }
         self.setup_vars['speed'] = 0
