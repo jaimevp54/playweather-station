@@ -73,11 +73,11 @@ class GPS:
                         self.fix=NMEA2_array[6]
                         self.altitude=NMEA2_array[9]
                         self.sats=NMEA2_array[7]
-# myGPS=GPS()
-# while True:
-#         myGPS.read()
-#         print myGPS.NMEA1
-#         print myGPS.NMEA2
+myGPS=GPS()
+while True:
+         myGPS.read()
+         print myGPS.NMEA1
+         print myGPS.NMEA2
 #          if myGPS.fix !=0 :
 #                  print '-----------Datos de localizacion-------------'
 #                  print 'Hora formato UTC: ',myGPS.timeUTC

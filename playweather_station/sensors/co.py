@@ -9,5 +9,4 @@ class CO(SensorModule):
     def capture_data(self):
         mq = self.setup_vars['MQ']
         perc = mq.MQPercentage()
-        print("CO: %g ppm" % (perc["CO"]))
         return perc["CO"]

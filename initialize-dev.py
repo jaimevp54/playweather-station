@@ -29,22 +29,22 @@ config.read('config.ini')
 if not validate(config):
     config = default_config()
 
-pw = PlayWeatherStation()
+pw = PlayWeatherStation(fake=True)
 pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
 pw.delivery_port = ""
-pw.should_deliver_data = False
-pw.should_persist_data = False
+pw.should_deliver_data = True
+pw.should_persist_data = True
 pw.gps_on = False
 
 # Register module classes in here
 # --> pw.register(module.Class)
 
+pw.register(co.CO, 'co')
 pw.register(lluvia.Rain, 'pluvial')
 pw.register(DHT22.DHT22, 'DHT22')
 pw.register(viento.Wind, 'viento')
 pw.register(ccs811.CCS811, 'co2')
-pw.register(UV.UV, 'uv')
-pw.register(co.CO, 'co')
+pw.register(UV.UV, 'violeta')
 
 
 try:

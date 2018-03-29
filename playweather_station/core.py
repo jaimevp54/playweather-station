@@ -33,6 +33,9 @@ class SensorModule(Thread):
     def setup(self):
         pass
 
+    def cleanup(self):
+        pass
+
     def capture_data(self):
         """ 
         Capture a single reading from the sensor
@@ -126,6 +129,10 @@ class PlayWeatherStation:
             logging.exception("Error while trying to register module")
 
     def initialize(self, config):
+        logging.info("System Initializying...\n")
+        logging.info("********************")
+        logging.info("****PLAYWEATHER*****")
+        logging.info("********************\n\n")
         if self.fake:
             logging.warning('Running on "fake" mode, all data collected from sensor modules will be randomly generated')
         # set configuration parameters
@@ -181,7 +188,9 @@ class PlayWeatherStation:
 
             logging.info("Handling data collected thus far")
             logging.debug("Collected data:")
-            logging.debug(json.dumps(data))
+            logging.debug("GPS=>"+json.dumps(data['location']))
+            for sensor,values in data['readings'].items():
+                logging.debug(sensor+"=>"+ json.dumps(values))
             delivery_success= False
             if self.should_deliver_data:
                 delivery_success = self.deliver_data(data)
