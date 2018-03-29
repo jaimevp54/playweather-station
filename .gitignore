@@ -143,3 +143,4 @@ home/__pycache__/
 home/migrations/__pycache__/
 playweather/__pycache__/
 
+pw.sqlite3
