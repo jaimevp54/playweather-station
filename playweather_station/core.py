@@ -114,6 +114,10 @@ class PlayWeatherStation:
         self.gps = None
         self.gps_on = True
 
+        self.should_deliver_weather_underground_data = True
+        self.weather_underground_definitions=None
+        self.weather_underground_deliver_data=None
+
 
 
     def register(self, sensor_class, name=""):
@@ -194,11 +198,25 @@ class PlayWeatherStation:
             delivery_success= False
             if self.should_deliver_data:
                 delivery_success = self.deliver_data(data)
-
             if self.should_persist_data:
                 self.persist_data(data, delivery_success)
             if self.should_deliver_data:
                 self.send_undelivered_data()
+
+            if self.should_deliver_weather_underground_data:
+                logging.error(self.weather_underground_deliver_data)
+                logging.error(self.weather_underground_definitions)
+                if not self.weather_underground_deliver_data:
+                    logging.error("No delivery_data method for weather underground was specified")
+                elif not self.weather_underground_definitions:
+                    logging.error("Data definitions have not been configured for weather underground")
+                else:
+                    self.weather_underground_deliver_data(
+                        wunderground_id="ISANTIAG230",
+                        wunderground_key="q31ov5wr",
+                        data_definitions=self.weather_underground_definitions,
+                        data=data
+                    )
 
 
 
