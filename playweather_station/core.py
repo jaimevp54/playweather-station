@@ -257,9 +257,9 @@ class PlayWeatherStation:
 
         if not self.fake and self.gps_on and self.gps.fix !=0:
             location = {
-                "latitude": self.gps.latDeg if self.gps.latDeg else "0",
-                "longitude": self.gps.lonDeg if self.gps.lonDeg else "0",
-                "altitude": self.gps.altitude if self.gps.altitude else "0",
+                "latitude": self.gps.latitude,
+                "longitude": self.gps.longitude,
+                "altitude": self.gps.altitude,
                 'date': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
             }
 

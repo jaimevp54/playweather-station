@@ -37,7 +37,7 @@ pw.delivery_port = ""
 pw.should_deliver_data = False
 pw.should_persist_data = False
 pw.should_deliver_weather_underground_data = False
-pw.gps_on = False
+pw.gps_on = True
 
 # Register module classes in here
 # --> pw.register(module.Class)

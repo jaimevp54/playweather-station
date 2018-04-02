@@ -1,7 +1,6 @@
 import serial
 from time import sleep
-ser=serial.Serial('/dev/ttySOFT0',9600)
-
+ser=serial.Serial('/dev/ttyS0',9600)
 class GPS:
         def __init__(self):
                 #This sets up variables for useful commands.
@@ -21,12 +20,12 @@ class GPS:
                 #Commands for which NMEA Sentences are sent
                 ser.write(BAUD_57600)
                 sleep(1)
-                ser.baudrate=9600
+                ser.baudrate=57600
                 GPRMC_ONLY= "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n" #Send only the GPRMC Sentence
                 GPRMC_GPGGA="$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"#Send GPRMC AND GPGGA Sentences
                 SEND_ALL ="$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n" #Send All Sentences
                 SEND_NOTHING="$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n" #Send Nothing
-                ser.write(UPDATE_1_sec)
+                ser.write(UPDATE_5_sec)
                 sleep(1)
                 ser.write(MEAS_1_sec)
                 sleep(1)
@@ -34,7 +33,24 @@ class GPS:
                 sleep(1)
                 ser.flushInput()
                 ser.flushInput()
-                print "GPS Inicializado"
+                print "GPS inicializado"
+
+        @property
+        def longitude(self):
+            """ Returns the current longitude in decimal value """
+            return (float(self.lonDeg) +(float(self.lonMin)/60))*-1
+
+        @property
+        def latitude(self):
+            """ Returns the current latitude in decimal value """
+            return float(self.latDeg) +(float(self.latMin)/60)
+
+        @property
+        def altitude(self):
+            """ Returns the current altitude in decimal value """
+            return float(self._altitude)
+
+
         def read(self):
                 ser.flushInput()
                 ser.flushInput()
@@ -57,7 +73,7 @@ class GPS:
                         self.knots=NMEA1_array[7]
                 if NMEA1_array[0]=='$GPGGA':
                         self.fix=NMEA1_array[6]
-                        self.altitude=NMEA1_array[9]
+                        self._altitude=NMEA1_array[9]
                         self.sats=NMEA1_array[7]
                 if NMEA2_array[0]=='$GPRMC':
                         self.timeUTC=NMEA2_array[1][:-8]+':'+NMEA1_array[1][-8:-6]+':'+NMEA1_array[1][-6:-4]
@@ -68,24 +84,18 @@ class GPS:
                         self.lonMin=NMEA2_array[5][-7:]
                         self.lonHem=NMEA2_array[6]
                         self.knots=NMEA2_array[7]
-
+ 
                 if NMEA2_array[0]=='$GPGGA':
                         self.fix=NMEA2_array[6]
-                        self.altitude=NMEA2_array[9]
+                        self._altitude=NMEA2_array[9]
                         self.sats=NMEA2_array[7]
-myGPS=GPS()
-while True:
-         myGPS.read()
-         print myGPS.NMEA1
-         print myGPS.NMEA2
-#          if myGPS.fix !=0 :
-#                  print '-----------Datos de localizacion-------------'
-#                  print 'Hora formato UTC: ',myGPS.timeUTC
-#                  print 'Se han encontrado: ',myGPS.sats,' satelites'
-#                  print 'Latitud: ',myGPS.latDeg, 'Grados', myGPS.latMin,' minutos', myGPS.latHem
-#                  print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos', myGPS.lonHem
-#                  print 'Velocidad: ', myGPS.knots
-#                  print 'Altitud: ',myGPS.altitude
-#                  print '---------------------------------------------'
-                 
-       
+##while(1):
+##        myGPS.read()
+##        #print myGPS.NMEA1
+##        #print myGPS.NMEA2
+##        if myGPS.fix!=0:
+##                #print 'You are Tracking: ',myGPS.sats,' satellites'
+##                print 'Latitud: ',myGPS.latDeg, 'Grados ', myGPS.latMin,' minutos ', myGPS.latHem
+##                print 'Longitud: ',myGPS.lonDeg, 'Grados ', myGPS.lonMin,' minutos ', myGPS.lonHem
+##                #print 'My Speed: ', myGPS.knots
+##                print 'Altitud: ',myGPS._altitude
