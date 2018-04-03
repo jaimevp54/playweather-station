@@ -1,12 +1,28 @@
 import logging
 import requests
 
+last_sent= {
+    "dateutc" : None,
+    "winddir" : None,
+    "windspeedmph" : None,
+    "windgustmph" : None,
+    "humidity" : None,
+    "tempf" : None,
+    "rainin" : None,
+    "dailyrainin" : None,
+    "baromin" : None,
+    "dewptf" : None,
+    "weather" : None,
+    "clouds" : None,
+    "softwaretype" : None,
+    }
 
 def _send_request(id, password, dateutc=None, winddir=None, windspeedmph=None, windgustmph=None, humidity=None,
                   tempf=None, rainin=None, dailyrainin=None, baromin=None, dewptf=None, weather=None, clouds=None,
                   softwaretype=None):
     request_url = "http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?action=updateraw&ID={id}&PASSWORD={password}".format(
         id=id, password=password)
+    
 
     if dateutc:
         request_url += "&dateutc=" + str(dateutc)
@@ -40,14 +56,23 @@ def _send_request(id, password, dateutc=None, winddir=None, windspeedmph=None, w
 
 def deliver_data(wunderground_id, wunderground_key, data_definitions, data):
     def last_value(param):
-        return readings[data_definitions[param]][-1]['value'] if param in data_definitions else None
+        try:
+            value = readings[data_definitions[param]][-1]['value'] if param in data_definitions else None
+            last_sent[param]=value
+            return value 
+        except IndexError:
+            logging.warning('No data to available for: {} -> {}'.format(param,data_definitions[param]))
+            return last_sent[param]
+        except KeyError:
+            logging.exception('Key not found in given data')
+        
     logging.info('Sending data to weather underground')
     readings = data['readings']
     winddir = last_value('winddir')
-    windspeedmph = last_value('windspeedmph')
+    windspeedmph = last_value('windspeedmph') * 0.621371
     windgustmph = last_value('windgustmph')
     humidity = last_value('humidity')
-    tempf = last_value('tempf')
+    tempf = last_value('tempf')*1.8 +32
     rainin = last_value('rainin')
     dailyrainin = last_value('dailyrainin')
     baromin = last_value('baromin')
@@ -74,4 +99,4 @@ def deliver_data(wunderground_id, wunderground_key, data_definitions, data):
 
     logging.info('Weather underground responded with:')
     logging.info("    Code: "+str(response.status_code))
-    logging.info("    "+response.text)
+    logging.debug("    "+response.text)

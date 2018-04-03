@@ -36,7 +36,7 @@ pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
 pw.delivery_port = ""
 pw.should_deliver_data = False
 pw.should_persist_data = False
-pw.should_deliver_weather_underground_data = False
+pw.should_deliver_weather_underground_data = True
 pw.gps_on = True
 
 # Register module classes in here
@@ -51,10 +51,10 @@ pw.register(co.CO, 'co')
 
 pw.weather_underground_deliver_data = weather_underground.deliver_data
 pw.weather_underground_definitions ={
-    'winddir': 'viento_direccion',
-    'rainin': 'pluvial',
+    # 'winddir': 'viento_direccion',
+    # 'rainin': 'pluvial',
     'windspeedmph': 'viento_velocidad',
-    'tempf': 'DHT22_temperatura',
+    'tempf': 'DHT22_temp',
     'humidity': 'DHT22_humedad',
 }
 

@@ -204,19 +204,20 @@ class PlayWeatherStation:
                 self.send_undelivered_data()
 
             if self.should_deliver_weather_underground_data:
-                logging.error(self.weather_underground_deliver_data)
-                logging.error(self.weather_underground_definitions)
                 if not self.weather_underground_deliver_data:
                     logging.error("No delivery_data method for weather underground was specified")
                 elif not self.weather_underground_definitions:
                     logging.error("Data definitions have not been configured for weather underground")
                 else:
-                    self.weather_underground_deliver_data(
-                        wunderground_id="ISANTIAG230",
-                        wunderground_key="q31ov5wr",
-                        data_definitions=self.weather_underground_definitions,
-                        data=data
-                    )
+                    try:
+                        self.weather_underground_deliver_data(
+                            wunderground_id="ISANTIAG230",
+                            wunderground_key="q31ov5wr",
+                            data_definitions=self.weather_underground_definitions,
+                            data=data
+                        )
+                    except Exception:
+                        logging.exception("Error occurred while sending data")
 
 
 

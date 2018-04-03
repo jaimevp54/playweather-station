@@ -40,28 +40,28 @@ CSS811_SW_RESET = 0xFF
 
 
 class CCS811(SensorModule):
-    def print_error(self):
-        error = self.pi.i2c_read_byte_data(self.device, CSS811_ERROR_ID)
-        message = 'Error: '
+##    def print_error(self):
+##        error = self.pi.i2c_read_byte_data(self.device, CSS811_ERROR_ID)
+##        message = 'Error: '
+##
+##        if error & 1 << 5:
+##            message += 'HeaterSupply '
+##        elif error & 1 << 4:
+##            message += 'HeaterFault '
+##        elif error & 1 << 3:
+##            message += 'MaxResistance '
+##        elif error & 1 << 2:
+##            message += 'MeasModeInvalid '
+##        elif error & 1 << 1:
+##            message += 'ReadRegInvalid '
+##        elif error & 1 << 0:
+##            message += 'MsgInvalid '
 
-        if error & 1 << 5:
-            message += 'HeaterSupply '
-        elif error & 1 << 4:
-            message += 'HeaterFault '
-        elif error & 1 << 3:
-            message += 'MaxResistance '
-        elif error & 1 << 2:
-            message += 'MeasModeInvalid '
-        elif error & 1 << 1:
-            message += 'ReadRegInvalid '
-        elif error & 1 << 0:
-            message += 'MsgInvalid '
+##        print(message)
 
-        print(message)
-
-    def check_for_error(self):
-        value = self.pi.i2c_read_byte_data(self.device, CSS811_STATUS)
-        return value & 1 << 0
+##    def check_for_error(self):
+##        value = self.pi.i2c_read_byte_data(self.device, CSS811_STATUS)
+##        return value & 1 << 0
 
     def app_valid(self):
         value = self.pi.i2c_read_byte_data(self.device, CSS811_STATUS)
@@ -82,24 +82,24 @@ class CCS811(SensorModule):
         if hardware_id != 0x81:
             raise ValueError('CCS811 not found. Please check wiring.')
 
-        if self.check_for_error():
-            self.print_error()
-            raise ValueError('Error at Startup.')
+##        if self.check_for_error():
+##            self.print_error()
+##            raise ValueError('Error at Startup.')
 
         if not self.app_valid():
             raise ValueError('Error: App not valid.')
 
         self.pi.i2c_write_byte(self.device, CSS811_APP_START)
 
-        if self.check_for_error():
-            self.print_error()
-            raise ValueError('Error at AppStart.')
+##        if self.check_for_error():
+##            self.print_error()
+##            raise ValueError('Error at AppStart.')
 
         self.set_drive_mode(1)
 
-        if self.check_for_error():
-            self.print_error()
-            raise ValueError('Error at setDriveMode.')
+##        if self.check_for_error():
+##            self.print_error()
+##            raise ValueError('Error at setDriveMode.')
 
     def setup(self):
         print 'Sensor de CO2 inicializado'
@@ -125,9 +125,9 @@ class CCS811(SensorModule):
         if self.data_available():
             self.read_logorithm_results()
             return self.CO2
-        elif self.check_for_error():
-            logging.error(self.print_error())
-            return -1
+##        elif self.check_for_error():
+##            logging.error(self.print_error())
+##            return -1
 
     def read_logorithm_results(self):
         b, d = self.pi.i2c_read_i2c_block_data(self.device, CSS811_ALG_RESULT_DATA, 4)
