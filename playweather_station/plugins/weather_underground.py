@@ -55,30 +55,30 @@ def _send_request(id, password, dateutc=None, winddir=None, windspeedmph=None, w
 
 
 def deliver_data(wunderground_id, wunderground_key, data_definitions, data):
-    def last_value(param):
+    def last_value(param, convertion_method=lambda x: x):
         try:
             value = readings[data_definitions[param]][-1]['value'] if param in data_definitions else None
             last_sent[param]=value
-            return value 
+            return convertion_method(value) if value else None
         except IndexError:
             logging.warning('No data to available for: {} -> {}'.format(param,data_definitions[param]))
-            return last_sent[param]
+            return convertion_method(last_sent[param]) if value else None
         except KeyError:
             logging.exception('Key not found in given data')
         
     logging.info('Sending data to weather underground')
     readings = data['readings']
     winddir = last_value('winddir')
-    windspeedmph = last_value('windspeedmph') * 0.621371
     windgustmph = last_value('windgustmph')
     humidity = last_value('humidity')
-    tempf = last_value('tempf')*1.8 +32
     rainin = last_value('rainin')
     dailyrainin = last_value('dailyrainin')
     baromin = last_value('baromin')
     dewptf = last_value('dewptf')
     weather = last_value('weather')
-    softwaretype=None
+    softwaretype="Playweather"
+    tempf = last_value('tempf', convertion_method=lambda x: x * 1.8 + 32)
+    windspeedmph = last_value('windspeedmph', convertion_method=lambda x: x*0.621371)
 
     response = _send_request(
         wunderground_id,
