@@ -3,8 +3,10 @@ from playweather_station.core import PlayWeatherStation
 from playweather_station.sensors import co, DHT22, lluvia, viento, ccs811, UV
 
 from playweather_station.plugins import weather_underground
+from playweather_station.settings import *
 
 import configparser
+
 
 
 def default_config():
@@ -31,33 +33,21 @@ config.read('config.ini')
 if not validate(config):
     config = default_config()
 
-pw = PlayWeatherStation()
-pw.delivery_url = "https://playweather-pucmm.herokuapp.com"
-pw.delivery_port = ""
-pw.should_deliver_data = False
-pw.should_persist_data = False
-pw.should_deliver_weather_underground_data = True
-pw.gps_on = True
+pw = PlayWeatherStation(fake=FAKE)
+pw.delivery_url = DELIVERY_URL
+pw.should_deliver_data = SHOULD_DELIVER_DATA
+pw.should_persist_data = SHOULD_PERSIST_DATA
+pw.should_deliver_weather_underground_data = SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA
+pw.gps_on = GPS_ON
 
 # Register module classes in here
 # --> pw.register(module.Class)
 
-pw.register(lluvia.Rain, 'pluvial')
-pw.register(DHT22.DHT22, 'DHT22')
-pw.register(viento.Wind, 'viento')
-pw.register(ccs811.CCS811, 'co2')
-pw.register(UV.UV, 'uv')
-pw.register(co.CO, 'co')
+for sensor in SENSOR_MODULES:
+    pw.register(sensor[0],sensor[1])
 
-pw.weather_underground_deliver_data = weather_underground.deliver_data
-pw.weather_underground_definitions ={
-    # 'winddir': 'viento_direccion',
-    # 'rainin': 'pluvial',
-    'windspeedmph': 'viento_velocidad',
-    'tempf': 'DHT22_temp',
-    'humidity': 'DHT22_humedad',
-}
-
+pw.weather_underground_deliver_data = WEATHER_UNDERGROUND_DELIVERY_METHOD
+pw.weather_underground_definitions = WEATHER_UNDERGROUND_DEFINITIONS
 
 try:
     pw.initialize(config)
