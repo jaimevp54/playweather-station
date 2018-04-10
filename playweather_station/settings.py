@@ -6,7 +6,7 @@ DELIVERY_URL = "https://playweather-pucmm.herokuapp.com"
 DELIVERY_PORT = ""
 SHOULD_DELIVER_DATA = True
 SHOULD_PERSIST_DATA = False
-SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA = False
+SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA =True
 GPS_ON = True
 
 FAKE = True
@@ -15,11 +15,12 @@ FAKE = True
 SENSOR_MODULES = [
     (lluvia.Rain, 'pluvial'),
     (DHT22.DHT22, 'DHT22'),
-    (viento.Wind, 'viento',
+    (viento.Wind, 'viento'),
     (ccs811.CCS811, 'co2'),
     (UV.UV, 'uv'),
     (co.CO, 'co'),
 ]
+
 # Define weather underground settings
 WEATHER_UNDERGROUND_DELIVERY_METHOD = weather_underground.deliver_data
 WEATHER_UNDERGROUND_DEFINITIONS ={

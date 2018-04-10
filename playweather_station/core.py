@@ -9,6 +9,7 @@ import random
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)s]  %(message)s',datefmt='%m/%d/%Y %I:%M:%S%p' )
+fh = logging.FileHandler('/var/log/supervisor/your_program_name.log') 
 
 
 class SensorModule(Thread):

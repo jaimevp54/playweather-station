@@ -62,7 +62,7 @@ def deliver_data(wunderground_id, wunderground_key, data_definitions, data):
             return convertion_method(value) if value else None
         except IndexError:
             logging.warning('No data to available for: {} -> {}'.format(param,data_definitions[param]))
-            return convertion_method(last_sent[param]) if value else None
+            return convertion_method(last_sent[param]) if last_sent[param] else None
         except KeyError:
             logging.exception('Key not found in given data')
         
