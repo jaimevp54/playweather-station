@@ -57,14 +57,13 @@ def _send_request(id, password, dateutc=None, winddir=None, windspeedmph=None, w
 def deliver_data(wunderground_id, wunderground_key, data_definitions, data):
     def last_value(param, convertion_method=lambda x: x):
         try:
-            value = readings[data_definitions[param]][-1]['value'] if param in data_definitions else None
+            value = readings[data_definitions[param]][-1].get('value') if param in data_definitions else None
             last_sent[param]=value
             return convertion_method(value) if value else None
-        except IndexError:
-            logging.warning('No data to available for: {} -> {}'.format(param,data_definitions[param]))
+        except (IndexError,KeyError):
+            logging.warning('No data to available for: {} -> {}. sending last reading available.'.format(param,data_definitions[param]))
             return convertion_method(last_sent[param]) if last_sent[param] else None
-        except KeyError:
-            logging.exception('Key not found in given data')
+
         
     logging.info('Sending data to weather underground')
     readings = data['readings']

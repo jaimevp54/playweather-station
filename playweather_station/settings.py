@@ -9,7 +9,7 @@ SHOULD_PERSIST_DATA = False
 SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA =True
 GPS_ON = True
 
-FAKE = True
+FAKE = False
 # Register module classes in here
 # --> pw.register(module.Class)
 SENSOR_MODULES = [
@@ -27,6 +27,6 @@ WEATHER_UNDERGROUND_DEFINITIONS ={
     'winddir': 'viento_direccion',
     'rainin': 'pluvial',
     'windspeedmph': 'viento_velocidad',
-    'tempf': 'DHT22_temperatura',
+    'tempf': 'DHT22_temp',
     'humidity': 'DHT22_humedad',
 }

@@ -6,7 +6,9 @@ from playweather_station.plugins import weather_underground
 from playweather_station.settings import *
 
 import configparser
+import logging
 
+logging.basicConfig(filename="/var/log/playweather/core.log", level=logging.DEBUG, format='%(asctime)s [%(levelname)s]  %(message)s',datefmt='%m/%d/%Y %I:%M:%S%p' )
 
 
 def default_config():
@@ -52,7 +54,7 @@ pw.weather_underground_definitions = WEATHER_UNDERGROUND_DEFINITIONS
 try:
     pw.initialize(config)
 except Exception as e:
-    print('An error has occurred: ', e)
+    logging.exception('An error has occurred: ')
     pw.stop()
 finally:
     pw.stop()

@@ -8,8 +8,7 @@ import json
 import random
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)s]  %(message)s',datefmt='%m/%d/%Y %I:%M:%S%p' )
-fh = logging.FileHandler('/var/log/supervisor/your_program_name.log') 
+logging.basicConfig(filename="/var/log/playweather/core.log", level=logging.DEBUG, format='%(asctime)s [%(levelname)s]  %(message)s',datefmt='%m/%d/%Y %I:%M:%S%p' )
 
 
 class SensorModule(Thread):

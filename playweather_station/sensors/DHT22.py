@@ -4,6 +4,7 @@ import atexit
 
 from playweather_station.core import *
 
+import subprocess
 import time
 from playweather_station.sensors.helpers import pigpio
 
@@ -247,6 +248,9 @@ class DHT22(SensorModule):
 
     def setup(self):
         # Intervalos de 3 segundos permiten que no se caiga o se quede en un loop infinito el DHT22
+        subprocess.call(['sudo', 'insmod', 'soft_uart.ko'])
+        subprocess.call(['sudo','pigpiod'])
+
         self.setup_vars['pi'] = pigpio.pi()
         self.setup_vars['s'] = sensor(self.setup_vars['pi'], 22)
         self.setup_vars['r'] = 0
