@@ -35,8 +35,8 @@ config.read('config.ini')
 #     config = default_config()
 
 config['PLAYWEATHER_STATION']={
-    'id': config['PLAYWEATHER_STATION'].get('id','station'),
-    'delivery_interval': config['PLAYWEATHER_STATION'].get('delivery_interval',30),
+    'id': config['PLAYWEATHER_STATION'].get('id','station')  if "PLAYWEATHER_STATION" in config else 'station',
+    'delivery_interval': config['PLAYWEATHER_STATION'].get('delivery_interval',30) if "PLAYWEATHER_STATION" in config else 30,
     'delivery_url': DELIVERY_URL,
     'should_deliver_data': SHOULD_DELIVER_DATA,
     'should_persist_data': SHOULD_PERSIST_DATA,

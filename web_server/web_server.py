@@ -56,11 +56,9 @@ def restart():
 def update_config(form,config):
     form = form.to_dict()
     with open('config.ini', 'w') as configfile:
-        config["PLAYWEATHER_STATION"]["id"] = form.pop('station-id')
         config["PLAYWEATHER_STATION"]["delivery_interval"] = form.pop("delivery-interval")
 
         for sensor in {sensor.replace("-id", "").replace("-collection-interval", "") for sensor in form}:
-            config[sensor]['id'] = form[sensor + '-id']
             config[sensor]['collection_interval'] = form[sensor + '-collection-interval']
 
         config.write(configfile)
