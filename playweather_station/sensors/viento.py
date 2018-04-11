@@ -105,6 +105,8 @@ class Wind(SensorModule):
 
     def cleanup(self):
 
+        import spidev
+        import RPi.GPIO as GPIO
         # Limpiar el GPIO
         GPIO.cleanup()
 

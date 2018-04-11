@@ -22,3 +22,7 @@
 .help-block{
     font-size: 11px;
 }
+
+.form-group > label{
+    font-weight:bold;
+}

@@ -13,9 +13,10 @@ def index():
         config.read('config.ini')
         if request.method == "POST":
             update_config(request.form,config)
+            subprocess.call("sudo supervisorctl restart playweather-core".split(" "))
 
         sensor_list = [sensor for sensor in config if sensor != "PLAYWEATHER_STATION" and sensor != "DEFAULT"]
-        return render_template('settings.html', sensors=sensor_list, config=config)
+        return render_template('settings.html', sensors=sensor_list, config=config )
     except Exception:
         return traceback.print_exc()
 
@@ -50,30 +51,6 @@ def restart():
     # do something here
     return "Restart not implemented"
 
-
-@app.route('/start')
-def start_station():
-    pw_station_process = app.config.get('pw_station_process', None)
-
-    if pw_station_process is not None:
-        return "A station is already running?"
-
-    pw_station_process = subprocess.Popen(['python', '-m', 'initialize'])
-    app.config['pw_station_process'] = pw_station_process
-
-    return redirect(url_for('index'))
-
-
-@app.route('/stop')
-def stop_station():
-    pw_station_process = app.config.pop('pw_station_process', None)
-
-    if pw_station_process is None:
-        return "A station is already running?"
-
-    pw_station_process.terminate()
-
-    return redirect(url_for('index'))
 
 
 def update_config(form,config):
