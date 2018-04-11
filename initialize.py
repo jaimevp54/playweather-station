@@ -12,7 +12,7 @@ logging.basicConfig(filename="/var/log/playweather/core.log", level=logging.DEBU
 
 
 def default_config():
-    new_config = configparser.ConfigParser()
+    new_config = configparser.SafeConfigParser()
     new_config["PLAYWEATHER_STATION"] = {
         "id": "station",
         "delivery_interval": "5",
@@ -29,12 +29,20 @@ def validate(config):
 
 
 # read configuration file
-config = configparser.ConfigParser()
+config = configparser.SafeConfigParser()
 config.read('config.ini')
+# if not validate(config):
+#     config = default_config()
 
-if not validate(config):
-    config = default_config()
-
+config['PLAYWEATHER_STATION']={
+    'id': config['PLAYWEATHER_STATION'].get('id','station'),
+    'delivery_interval': config['PLAYWEATHER_STATION'].get('delivery_interval',30),
+    'delivery_url': DELIVERY_URL,
+    'should_deliver_data': SHOULD_DELIVER_DATA,
+    'should_persist_data': SHOULD_PERSIST_DATA,
+    'should_deliver_weather_underground_data': SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA,
+    'gps_on': GPS_ON
+}
 pw = PlayWeatherStation(fake=FAKE)
 pw.delivery_url = DELIVERY_URL
 pw.should_deliver_data = SHOULD_DELIVER_DATA
@@ -42,14 +50,21 @@ pw.should_persist_data = SHOULD_PERSIST_DATA
 pw.should_deliver_weather_underground_data = SHOULD_DELIVER_WEATHER_UNDERGROUND_DATA
 pw.gps_on = GPS_ON
 
+
 # Register module classes in here
 # --> pw.register(module.Class)
 
 for sensor in SENSOR_MODULES:
+    config[sensor[1]] = {
+        'collection_interval': (config[sensor[1]] if config.has_section(sensor[1]) else {}).get('collection_interval',15),
+    }
     pw.register(sensor[0],sensor[1])
 
 pw.weather_underground_deliver_data = WEATHER_UNDERGROUND_DELIVERY_METHOD
 pw.weather_underground_definitions = WEATHER_UNDERGROUND_DEFINITIONS
+
+with open('config.ini', 'w') as configfile:
+    config.write(configfile)
 
 try:
     pw.initialize(config)

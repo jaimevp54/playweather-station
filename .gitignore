@@ -144,3 +144,4 @@ home/migrations/__pycache__/
 playweather/__pycache__/
 
 pw.sqlite3
+playweather_station/settings.py
